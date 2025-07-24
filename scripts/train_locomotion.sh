@@ -1,0 +1,16 @@
+HYDRA_FULL_ERROR=1 python humanoidverse/train_agent.py \
++simulator=isaacsim \
++exp=locomotion \
++domain_rand=NO_domain_rand \
++rewards=loco/reward_g1_locomotion \
++robot=g1/g1_12dof \
++terrain=terrain_locomotion_plane \
++obs=loco/leggedloco_obs_singlestep_withlinvel \
+num_envs=4096 \
+headless=True \
+project_name=ZiG1 \
+experiment_name=G1_12dof_locomotion_with_termination \
++opt=wandb \
+rewards.reward_penalty_curriculum=True \
+rewards.reward_initial_penalty_scale=0.1 \
+rewards.reward_penalty_degree=0.00003 

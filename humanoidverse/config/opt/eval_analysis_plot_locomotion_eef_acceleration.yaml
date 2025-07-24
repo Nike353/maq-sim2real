@@ -1,0 +1,21 @@
+# @package _global_
+
+algo:
+  config:
+    eval_callbacks:
+      analysis_plot_cb:
+        _target_: humanoidverse.agents.callbacks.analysis_plot_locomotion_acceleration.AnalysisPlotLocomotionAcceleration
+        config:
+          sim_dt: 0.02
+          log_single_robot: False
+          plot_update_interval: 100
+          # compute_metrics: False
+          compute_metrics_interval: 1000
+          description: 'BASELINE'
+          compute_metrics_keys: ['end_effector_ang_acc_norm', 'end_effector_acc_norm', 'end_effector_grav_xy']
+          test_command_mode: 'retangular'
+          test_command_mode_params:
+            amplitude: 2.5
+            period: 5
+            axis: 'yaw'
+

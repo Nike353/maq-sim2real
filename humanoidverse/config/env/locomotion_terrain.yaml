@@ -1,0 +1,20 @@
+# @package _global_
+
+defaults:
+  - locomotion
+
+# Env structure
+env:
+  _target_: humanoidverse.envs.locomotion_terrain.locomotion_terrain.LeggedRobotLocomotionTerrain
+  config:
+    task:
+      type: "locomotion_terrain"
+      name: "locomotion_terrain"
+
+# Globally accessible parameters
+log_task_name: locomotion_terrain
+
+eval_overrides:
+  env:
+    config: 
+      max_episode_length_s: 100000

@@ -1,0 +1,59 @@
+# @package _global_
+
+# Env structure
+simulator:
+  _target_: humanoidverse.simulator.isaacsim.isaacsim.IsaacSim
+  _recursive_: False
+  config:
+    name: "isaacsim"
+    terrain: ${terrain}
+    plane:
+        static_friction: 1.0
+        dynamic_friction: 1.0
+        restitution: 0.0
+    sim:
+      fps: 200
+      control_decimation: 4
+      substeps: 1
+      physx:
+        num_threads: 10
+        solver_type: 1 # 0: pgs, 1: tgs
+        num_position_iterations: 4
+        num_velocity_iterations: 0
+        contact_offset: 0.01
+        rest_offset: 0.0
+        bounce_threshold_velocity: 0.5
+        max_depenetration_velocity: 1.0
+        default_buffer_size_multiplier: 5
+        contact_collection: 2
+      render_mode: "human" # [None, "human", "rgb_array"]
+      render_interval: 4
+    
+    cameras:
+      enable_cameras: false
+      camera_attached_link: "d435_link"
+      camera_pos_offset: (-1.5, 0.0, 0.0)
+      camera_rot_offset: (1, 0.0, 0.0, 0.0)
+      camera_yaw_only: true
+      camera_focal_length: 10.0
+      camera_focus_distance: 400.0
+      camera_horizontal_aperture: 20.955
+      camera_clipping_range: (0.1, 20.0)
+      camera_resolutions_width: 80
+      camera_resolutions_height: 80
+      camera_types:
+        - rgb: false
+        - depth: true
+      camera_resolutions: [128, 128]
+    
+    heightmap:
+      enable_heightmap: false
+    
+    scene:
+      num_envs: ${num_envs}
+      env_spacing: ${env.config.env_spacing}
+      replicate_physics: True
+
+
+     
+      # camera_resolutions: [64, 64]

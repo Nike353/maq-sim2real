@@ -1,0 +1,6 @@
+Sat Jul 12 18:04:46 2025
+WARNING: mju_openResource: unknown file 'humanoidverse/data/robots/g1/scene_g1_27dof_fakehand.xml'
+
+Sat Jul 12 18:05:26 2025
+WARNING: mju_openResource: unknown file 'humanoidverse/data/robots/t1/T1_locomotion.xml'
+

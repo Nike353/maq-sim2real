@@ -1,0 +1,74 @@
+# HYDRA_FULL_ERROR=1 accelerate launch --num_processes 2 humanoidverse/train_agent_trl.py \
+# headless=True \
+# +exp=trl/locomotion \
+# simulator.config.cameras.enable_cameras=False
+
+# locomotion
+# HYDRA_FULL_ERROR=1 accelerate launch --num_processes 2 humanoidverse/train_agent_trl.py \
+# +simulator=isaacsim \
+# simulator.config.cameras.enable_cameras=False \
+# +exp=locomotion \
+# +domain_rand=NO_domain_rand \
+# +rewards=loco/reward_g1_locomotion_stairs2 \
+# +robot=g1/g1_12dof \
+# +terrain=terrain_locomotion_plane \
+# +obs=loco/leggedloco_obs_singlestep_withlinvel_withhmap \
+# +opt=wandb \
+# algo=ppo_distributed \
+# num_envs=4096 \
+# project_name=IsaacSimStairsDebug \
+# experiment_name=G1_12dof_stairs_loco_with_map \
+# headless=True \
+# +enable_cameras=False \
+# rewards.reward_penalty_curriculum=True \
+# rewards.reward_initial_penalty_scale=0.1 \
+# rewards.reward_penalty_degree=0.00003
+
+# dagger oracle
+HYDRA_FULL_ERROR=1 accelerate launch --num_processes 2 humanoidverse/train_agent_trl.py \
++simulator=isaacsim \
+simulator.config.cameras.enable_cameras=False \
++exp=locomotion \
++domain_rand=NO_domain_rand \
++rewards=loco/reward_g1_locomotion_stairs2 \
++robot=g1/g1_12dof \
++terrain=terrain_locomotion_stairs \
++obs=loco/leggedloco_obs_singlestep_withlinvel_oracle \
++opt=wandb \
+algo=dagger_distributed \
+trainer=trl_bc_distill \
+num_envs=4000 \
+project_name=IsaacSimStairsDebug \
+experiment_name=G1_12dof_stairs_loco_with_map \
+headless=True \
++enable_cameras=False \
+rewards.reward_penalty_curriculum=True \
+rewards.reward_initial_penalty_scale=0.1 \
+rewards.reward_penalty_degree=0.00003 \
+algo.config.use_new_actor_critic=False \
+algo.config.network_load_dict.teacher_actor.path=logs/IsaacSimStairsDebug/20250417_192911-G1_12dof_stairs_loco_with_map-locomotion-g1_12dof/model_2000.pt
+
+# dagger depth image 
+# HYDRA_FULL_ERROR=1 accelerate launch --num_processes 2 humanoidverse/train_agent_trl.py \
+# +simulator=isaacsim \
+# simulator.config.cameras.enable_cameras=True \
+# +exp=locomotion \
+# +domain_rand=NO_domain_rand \
+# +rewards=loco/reward_g1_locomotion_stairs2 \
+# +robot=g1/g1_12dof \
+# +terrain=terrain_locomotion_stairs \
+# +obs=loco/leggedloco_obs_singlestep_withlinvel_with_dagger_cnn \
+# +opt=wandb \
+# algo=dagger_vision_distributed \
+# trainer=trl_bc_vision_distill \
+# num_envs=1000 \
+# project_name=IsaacSimStairsDebug \
+# experiment_name=G1_12dof_stairs_loco_with_depth_image \
+# headless=True \
+# +enable_cameras=True \
+# rewards.reward_penalty_curriculum=True \
+# rewards.reward_initial_penalty_scale=0.1 \
+# rewards.reward_penalty_degree=0.00003 \
+# algo.config.use_new_actor_critic=False \
+# algo.config.module_dim.vision_feature_dim=128 \
+# algo.config.network_load_dict.teacher_actor.path=logs/IsaacSimStairsDebug/20250417_192911-G1_12dof_stairs_loco_with_map-locomotion-g1_12dof/model_2000.pt
