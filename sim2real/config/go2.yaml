@@ -1,0 +1,161 @@
+ROBOT_TYPE: 'go2'
+ROBOT_SCENE: "../humanoidverse/data/robots/go2/scene.xml"
+DOMAIN_ID: 0 # Domain id
+# Interface
+INTERFACE: "lo" # Yuanhang: lo0 for mac, lo for linux
+USE_ROS: False
+PRINT_SCENE_INFORMATION: True # Print link, joint and sensors information of robot
+ENABLE_ELASTIC_BAND: False # Virtual spring band, used for lifting h1
+
+SIMULATE_DT: 0.005  # Need to be larger than the runtime of viewer.sync()
+VIEWER_DT: 0.02  # 50 fps for viewer
+USE_SENSOR: False
+USE_HISTORY: True
+VISUALIZE_PIN: False
+VISUALIZE_FORCES: False
+FREE_BASE: False
+USE_JOYSTICK: 0 # Simulate Unitree WirelessController using a gamepad (0: disable, 1: enable)
+JOYSTICK_TYPE: "xbox" # support "xbox" and "switch" gamepad layout
+JOYSTICK_DEVICE: 0 # Joystick number
+MOTOR2JOINT: [
+    3,  # FR_hip_joint
+    4,  # FR_thigh_joint
+    5,  # FR_calf_joint
+    0,  # FL_hip_joint
+    1,  # FL_thigh_joint
+    2,  # FL_calf_joint
+    9,  # RR_hip_joint
+    10,  # RR_thigh_joint
+    11,  # RR_calf_joint
+    6,  # RL_hip_joint
+    7,  # RL_thigh_joint
+    8,  # RL_calf_joint
+]
+
+JOINT2MOTOR: [
+    3,  # FR_hip_joint
+    4,  # FR_thigh_joint
+    5,  # FR_calf_joint
+    0,  # FL_hip_joint
+    1,  # FL_thigh_joint
+    2,  # FL_calf_joint
+    9,  # RR_hip_joint
+    10,  # RR_thigh_joint
+    11,  # RR_calf_joint
+    6,  # RL_hip_joint
+    7,  # RL_thigh_joint
+    8,  # RL_calf_joint
+]
+
+UNITREE_LEGGED_CONST:
+  HIGHLEVEL: 0xEE
+  LOWLEVEL: 0xFF
+  TRIGERLEVEL: 0xF0
+  PosStopF: 2146000000.0
+  VelStopF: 16000.0
+
+JOINT_KP: [
+    25.0,
+    25.0,
+    25.0,
+    25.0,
+    25.0,
+    25.0,
+    25.0,
+    25.0,
+    25.0,
+    25.0,
+    25.0,
+    25.0,
+]
+
+JOINT_KD: [
+  0.6,
+  0.6,
+  0.6,
+  0.6,
+  0.6,
+  0.6,
+  0.6,
+  0.6,
+  0.6,
+  0.6,
+  0.6,
+  0.6,
+]
+
+WeakMotorJointIndex: 
+
+    FR_hip_joint: 3  # 
+    FR_thigh_joint: 4  # 
+    FR_calf_joint: 5
+    FL_hip_joint: 0
+    FL_thigh_joint: 1
+    FL_calf_joint: 2
+    RR_hip_joint: 9
+    RR_thigh_joint: 10
+    RR_calf_joint: 11
+    RL_hip_joint: 6
+    RL_thigh_joint: 7
+    RL_calf_joint: 8
+
+
+NUM_MOTOR: 12
+NUM_JOINTS: 12
+
+DEFAULT_DOF_ANGLES: [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1.0, -1.5, -0.1, 1.0, -1.5]
+
+history_config: {
+                  actions: 14,
+                  base_ang_vel: 14,
+                  clock_inputs: 14,
+                  command_ang_vel: 14,
+                  command_aux_reward: 14,
+                  command_body_attitude: 14,
+                  command_body_height: 14,
+                  command_footswing_height: 14,
+                  command_gait_freq: 14,
+                  command_gait_phase: 14,
+                  command_lin_vel: 14,
+                  command_stance: 14,
+                  dof_pos: 14,
+                  dof_vel: 14,
+                  projected_gravity: 14                
+}
+
+obs_scales: {
+  actions: 1.0,
+  base_ang_vel: 0.25,
+  clock_inputs: 1.0,
+  command_ang_vel: 1.0,
+  command_aux_reward: 1.0,
+  command_body_attitude: 0.3,
+  command_body_height: 2.0,
+  command_footswing_height: 0.15,
+  command_gait_freq: 1.0,
+  command_gait_phase: 1.0,
+  command_lin_vel: 1.0,
+  command_stance: 1.0,
+  dof_pos: 1.0,
+  dof_vel: 0.05,
+  projected_gravity: 1.0,
+  history: 1.0,
+}
+
+obs_dims: {
+  actions: 12,
+  base_ang_vel: 3,
+  clock_inputs: 4,
+  command_ang_vel: 1,
+  command_aux_reward: 1,
+  command_body_attitude: 2,
+  command_body_height: 1,
+  command_footswing_height: 1,
+  command_gait_freq: 1,
+  command_gait_phase: 4,
+  command_lin_vel: 2,
+  command_stance: 2,
+  dof_pos: 12,
+  dof_vel: 12,
+  projected_gravity: 3,
+}

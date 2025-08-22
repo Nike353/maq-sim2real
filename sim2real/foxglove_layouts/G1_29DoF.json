@@ -1,0 +1,399 @@
+{
+  "configById": {
+    "Plot!4dr15xh": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/command_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#4e98e2"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_lower_limit.data[:]",
+          "enabled": true,
+          "color": "#f5774d"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_upper_limit.data[:]",
+          "enabled": true,
+          "color": "#f7df71"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/robot_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#5cd6a9"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "index",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "Left_Wrist",
+      "minXValue": 19,
+      "maxXValue": 21
+    },
+    "Plot!4eb0itl": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/command_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#4e98e2"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_lower_limit.data[:]",
+          "enabled": true,
+          "color": "#f5774d"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_upper_limit.data[:]",
+          "enabled": true,
+          "color": "#f7df71"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/robot_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#5cd6a9"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "index",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "Left_Shoulder_Elbow",
+      "minXValue": 15,
+      "maxXValue": 18
+    },
+    "Plot!3mfehda": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/command_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#4e98e2"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_lower_limit.data[:]",
+          "enabled": true,
+          "color": "#f5774d"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_upper_limit.data[:]",
+          "enabled": true,
+          "color": "#f7df71"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/robot_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#5cd6a9"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "index",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "Right_Shoulder_Elbow",
+      "minXValue": 22,
+      "maxXValue": 25
+    },
+    "Plot!2a83t3k": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/command_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#4e98e2"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_lower_limit.data[:]",
+          "enabled": true,
+          "color": "#f5774d"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_upper_limit.data[:]",
+          "enabled": true,
+          "color": "#f7df71"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/robot_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#5cd6a9"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "index",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "Right_Wrist",
+      "minXValue": 26,
+      "maxXValue": 28
+    },
+    "Plot!18qvmoc": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/command_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#4e98e2"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_lower_limit.data[:]",
+          "enabled": true,
+          "color": "#f5774d"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_upper_limit.data[:]",
+          "enabled": true,
+          "color": "#f7df71"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/robot_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#5cd6a9"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "index",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "Waist",
+      "minXValue": 12,
+      "maxXValue": 14
+    },
+    "Plot!v11dfb": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/command_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#4e98e2"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_lower_limit.data[:]",
+          "enabled": true,
+          "color": "#f5774d"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_upper_limit.data[:]",
+          "enabled": true,
+          "color": "#f7df71"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/robot_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#5cd6a9"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "index",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "Left_Knee_Ankle",
+      "minXValue": 3,
+      "maxXValue": 5
+    },
+    "Plot!uyjt9t": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/command_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#4e98e2"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_lower_limit.data[:]",
+          "enabled": true,
+          "color": "#f5774d"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_upper_limit.data[:]",
+          "enabled": true,
+          "color": "#f7df71"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/robot_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#5cd6a9"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "index",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "Left_Hip",
+      "minXValue": 0,
+      "maxXValue": 2
+    },
+    "Plot!3az2h39": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/command_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#4e98e2"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_lower_limit.data[:]",
+          "enabled": true,
+          "color": "#f5774d"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_upper_limit.data[:]",
+          "enabled": true,
+          "color": "#f7df71"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/robot_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#5cd6a9"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "index",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "Right_Hip",
+      "minXValue": 6,
+      "maxXValue": 8
+    },
+    "Plot!2pdtbkr": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/command_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#4e98e2"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_lower_limit.data[:]",
+          "enabled": true,
+          "color": "#f5774d"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_upper_limit.data[:]",
+          "enabled": true,
+          "color": "#f7df71"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/robot_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#5cd6a9"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "index",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "Right_Knee_Ankle",
+      "minXValue": 9,
+      "maxXValue": 11
+    }
+  },
+  "globalVariables": {},
+  "userNodes": {},
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": {
+    "first": {
+      "first": {
+        "first": {
+          "first": "Plot!4dr15xh",
+          "second": "Plot!4eb0itl",
+          "direction": "row",
+          "splitPercentage": 43.96753202672692
+        },
+        "second": {
+          "first": "Plot!3mfehda",
+          "second": "Plot!2a83t3k",
+          "direction": "row",
+          "splitPercentage": 57.29899046713928
+        },
+        "direction": "row"
+      },
+      "second": "Plot!18qvmoc",
+      "direction": "column",
+      "splitPercentage": 67.23938223938222
+    },
+    "second": {
+      "first": {
+        "first": "Plot!v11dfb",
+        "second": "Plot!uyjt9t",
+        "direction": "row",
+        "splitPercentage": 57.62192460990914
+      },
+      "second": {
+        "first": "Plot!3az2h39",
+        "second": "Plot!2pdtbkr",
+        "direction": "row",
+        "splitPercentage": 41.28611189231651
+      },
+      "direction": "row"
+    },
+    "direction": "column",
+    "splitPercentage": 56.17760617760618
+  }
+}

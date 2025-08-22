@@ -1,0 +1,89 @@
+ROBOT_TYPE: 'go2'
+
+MOTOR2JOINT: [
+    3,  # FR_hip_joint
+    4,  # FR_thigh_joint
+    5,  # FR_calf_joint
+    0,  # FL_hip_joint
+    1,  # FL_thigh_joint
+    2,  # FL_calf_joint
+    9,  # RR_hip_joint
+    10,  # RR_thigh_joint
+    11,  # RR_calf_joint
+    6,  # RL_hip_joint
+    7,  # RL_thigh_joint
+    8,  # RL_calf_joint
+]
+
+JOINT2MOTOR: [
+    3,  # FR_hip_joint
+    4,  # FR_thigh_joint
+    5,  # FR_calf_joint
+    0,  # FL_hip_joint
+    1,  # FL_thigh_joint
+    2,  # FL_calf_joint
+    9,  # RR_hip_joint
+    10,  # RR_thigh_joint
+    11,  # RR_calf_joint
+    6,  # RL_hip_joint
+    7,  # RL_thigh_joint
+    8,  # RL_calf_joint
+]
+
+UNITREE_LEGGED_CONST:
+  HIGHLEVEL: 0xEE
+  LOWLEVEL: 0xFF
+  TRIGERLEVEL: 0xF0
+  PosStopF: 2146000000.0
+  VelStopF: 16000.0
+
+JOINT_KP: [
+    35.0,
+    35.0,
+    35.0,
+    35.0,
+    35.0,
+    35.0,
+    35.0,
+    35.0,
+    35.0,
+    35.0,
+    35.0,
+    35.0,
+]
+
+JOINT_KD: [
+  0.7,
+  0.7,
+  0.7,
+  0.7,
+  0.7,
+  0.7,
+  0.7,
+  0.7,
+  0.7,
+  0.7,
+  0.7,
+  0.7,
+]
+
+WeakMotorJointIndex: 
+
+    FR_hip_joint: 3  # 
+    FR_thigh_joint: 4  # 
+    FR_calf_joint: 5
+    FL_hip_joint: 0
+    FL_thigh_joint: 1
+    FL_calf_joint: 2
+    RR_hip_joint: 9
+    RR_thigh_joint: 10
+    RR_calf_joint: 11
+    RL_hip_joint: 6
+    RL_thigh_joint: 7
+    RL_calf_joint: 8
+
+
+NUM_MOTOR: 12
+NUM_JOINTS: 12
+
+DEFAULT_DOF_ANGLES: [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1.0, -1.5, -0.1, 1.0, -1.5]

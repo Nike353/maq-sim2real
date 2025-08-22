@@ -24,19 +24,7 @@ class LeggedRobotLocomotion(LeggedRobotBase):
         
         super().__init__(config, device)
         self._init_gait_params()
-        # Safely get upper arm DOF names and indices
-        self.upper_left_arm_dof_names = getattr(self.config.robot, 'upper_left_arm_dof_names', [])
-        self.upper_right_arm_dof_names = getattr(self.config.robot, 'upper_right_arm_dof_names', [])
         
-        # Only compute indices if the DOF names exist
-        self.upper_left_arm_dof_indices = [self.dof_names.index(dof) for dof in self.upper_left_arm_dof_names] if self.upper_left_arm_dof_names else []
-        self.upper_right_arm_dof_indices = [self.dof_names.index(dof) for dof in self.upper_right_arm_dof_names] if self.upper_right_arm_dof_names else []
-        
-        # Safely get hips DOF ID
-        self.hips_dof_id = []
-        if hasattr(self.config.robot, 'motion') and hasattr(self.config.robot.motion, 'hips_link'):
-            self.hips_dof_id = [self.simulator._body_list.index(link) - 1 for link in self.config.robot.motion.hips_link] # Yuanhang: -1 for the base link (pelvis)
-        self.init_done = True
     
     def _init_buffers(self):
         super()._init_buffers()
@@ -81,12 +69,7 @@ class LeggedRobotLocomotion(LeggedRobotBase):
                 self.phi_offset = np.zeros(self.num_envs)
         else:
             self.phi_offset = np.zeros(self.num_envs)
-        # Initialize the target arm joint positions
-        self.swing_arm_joint_pos = torch.tensor([-1.04, 0.0, 0.0, 1.57,
-                                                0.0, 0.0, 0.0], device=self.device, dtype=torch.float, requires_grad=False)
-        self.stance_arm_joint_pos = torch.tensor([0.757, 0.0, 0.0, 1.57,
-                                                0.0, 0.0, 0.0], device=self.device, dtype=torch.float, requires_grad=False)
-        print("phi_offset: ", self.phi_offset)
+        
     
 
     def _setup_simulator_control(self):
@@ -205,6 +188,20 @@ class LeggedRobotLocomotion(LeggedRobotBase):
         self.last_feet_air_time[first_contact] = self.feet_air_time[first_contact]
         rew_airTime = torch.sum((self.feet_air_time - 0.5) * first_contact, dim=1) # reward only on first contact with the ground
         rew_airTime *= torch.norm(self.commands[:, :2], dim=1) > 0.1 #no reward for zero command
+        self.feet_air_time *= ~contact_filt
+        return rew_airTime
+    
+    def _reward_penalty_low_command_air_time(self):
+        # Reward long steps
+        # Need to filter the contacts because the contact reporting of PhysX is unreliable on meshes
+        contact = self.simulator.contact_forces[:, self.feet_indices, 2] > 1.
+        contact_filt = torch.logical_or(contact, self.last_contacts) 
+        self.last_contacts = contact
+        first_contact = (self.feet_air_time > 0.) * contact_filt
+        self.feet_air_time += self.dt
+        self.last_feet_air_time[first_contact] = self.feet_air_time[first_contact]
+        rew_airTime = torch.sum((self.feet_air_time - 0.1) * first_contact, dim=1) # reward only on first contact with the ground
+        rew_airTime *= torch.norm(self.commands[:, :2], dim=1) < 0.1 #no reward for zero command
         self.feet_air_time *= ~contact_filt
         return rew_airTime
     

@@ -1,0 +1,12 @@
+vicon_tracker_ip: "128.2.184.3"
+vicon_object_name: "lecar_go2"
+
+
+odom_frame_id: "world"
+odom_child_frame_id: "base_link"
+
+
+frequency: 200 # Hz
+cut_off_freq: 5.0
+filter_order: 2
+filter_window_size: 90 # frequency / cut_off_freq * 3

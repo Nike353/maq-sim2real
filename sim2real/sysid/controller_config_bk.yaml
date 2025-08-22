@@ -1,0 +1,61 @@
+traj_name: "walking_FB_03"
+# traj_name: "walking_LR"
+
+walking_FB_0_3:
+  traj_type: "line" # "line" or "rotating" or "sine" or "open_loop"
+  default_xy: [0.3, -2.6] # [x, y]
+  default_theta: 1.571 # rad
+  T: 10.0 # sec
+  Dx: 0.0
+  Dy: 4.0
+  repeat: 1 # number of repeat
+
+
+walking_FB_0_6:
+  traj_type: "line" # "line" or "rotating" or "sine" or "open_loop"
+  default_xy: [0.3, -2.6] # [x, y]
+  default_theta: 1.571 # rad
+  T: 6.5 # sec
+  Dx: 0.0
+  Dy: 4.0
+  repeat: 1 # number of repeat
+
+
+walking_FB_1_0:
+  traj_type: "line" # "line" or "rotating" or "sine" or "open_loop"
+  default_xy: [0.3, -2.6] # [x, y]
+  default_theta: 1.571 # rad
+  T: 4.0 # sec
+  Dx: 0.0
+  Dy: 4.0
+  Dtheta: 0.0
+  repeat: 1 # number of repeat
+
+
+walking_LR_0_3:
+  traj_type: "line"
+  default_xy: [0.3, -2.6]
+  default_theta: 0.0
+  T: 10.0
+  Dx: 0.0
+  Dy: 4.0
+  Dtheta: 0.0
+  repeat: 1
+
+walking_LR_0_6:
+  traj_type: "line"
+  default_xy: [0.3, -2.6]
+  default_theta: 0.0
+  T: 6.5
+  Dx: 0.0
+  Dy: 4.0
+  Dtheta: 0.0
+  repeat: 1
+
+
+rotating:
+  default_xy: [-0.15, -2.6]
+
+sine:
+
+open_loop:

@@ -1,0 +1,118 @@
+{
+  "configById": {
+    "Plot!2sr8xqu": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/command_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#4e98e2",
+          "showLine": true,
+          "label": "DoF_Target_Pos"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/robot_joint_pos.data[:]",
+          "enabled": true,
+          "color": "#f5774d",
+          "label": "DoF_Pos"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_lower_limit.data[:]",
+          "enabled": true,
+          "color": "#f7df71",
+          "label": "DoF_Lower_Limits"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_pos_upper_limit.data[:]",
+          "enabled": true,
+          "color": "#5cd6a9",
+          "label": "DoF_Upper_Limits"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "index",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "All DoF Position"
+    },
+    "Plot!pv2h17": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/robot_joint_vel.data[:]",
+          "enabled": true,
+          "color": "#4e98e2",
+          "showLine": true,
+          "label": "DoF_Vel"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_vel_limit.data[:]",
+          "enabled": true,
+          "color": "#f5774d",
+          "label": "DoF_Max_Vel"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "index",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "All DoF Velocity"
+    },
+    "Plot!2kd8jh9": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/robot_joint_torque.data[:]",
+          "enabled": true,
+          "color": "#4e98e2",
+          "label": "DoF_Torque"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/joint_torque_limit.data[:]",
+          "enabled": true,
+          "color": "#f5774d",
+          "label": "DoF_Max_Torque"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": false,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "index",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "All DoF Torque"
+    }
+  },
+  "globalVariables": {
+    "": ""
+  },
+  "userNodes": {},
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": {
+    "first": "Plot!2sr8xqu",
+    "second": {
+      "first": "Plot!pv2h17",
+      "second": "Plot!2kd8jh9",
+      "direction": "row"
+    },
+    "direction": "column",
+    "splitPercentage": 50.39682539682539
+  }
+}

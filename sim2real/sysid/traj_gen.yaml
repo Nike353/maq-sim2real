@@ -1,0 +1,16 @@
+output: "ref/figure8/figure8.pkl"
+traj_type: "sine"
+yaw_as_xy_vel: False
+wait_time: 5.0
+
+xy_bspline:
+  T: 20
+  T_sample: 2
+  start: [0.3, -2.6]
+
+sine: 
+  T: 20
+  A: [0.0, 1.5, 0.0]
+  W: [2.0, 0.8, 0.0]
+  Phi: [0.0, -1.57, 0.0]
+  B: [0.05, -1.3, 1.57]

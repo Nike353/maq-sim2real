@@ -1,0 +1,96 @@
+ROBOT_TYPE: 'h1'
+ROBOT_SCENE: "../roboverse/data/robots/h1/h1.xml" # Robot scene
+DOMAIN_ID: 1 # Domain id
+# Interface
+INTERFACE: "lo" # Yuanhang: lo0 for mac, lo for linux
+
+PRINT_SCENE_INFORMATION: True # Print link, joint and sensors information of robot
+ENABLE_ELASTIC_BAND: False # Virtual spring band, used for lifting h1
+
+SIMULATE_DT: 0.005  # Need to be larger than the runtime of viewer.sync()
+VIEWER_DT: 0.02  # 50 fps for viewer
+
+MOTOR2JOINT: [6, # right hip roll
+               7, # right hip pitch
+               8, # right knee
+               1, # left hip roll
+               2, # left hip pitch
+               3, # left knee
+               10, # torso
+               0, # left hip yaw
+               5, # right hip yaw
+               99999, # N/A for motor index 9
+               4, # left ankle
+               9, # right ankle
+               15, # right shoulder pitch
+               16, # right shoulder roll
+               17, # right should yaw
+               18, # right elbow
+               11, # left shoulder pitch
+               12, # left shoulder roll
+               13, # left shoulder yaw
+               14, # left elbow
+            ]
+JOINT2MOTOR: [ 7, 3, 4, 5, 10,  # left leg
+                8, 0, 1, 2, 11,  # right leg
+                6,               # torso
+                16, 17, 18, 19,  # left arm
+                12, 13, 14, 15   # right arm
+            ]
+
+UNITREE_LEGGED_CONST:
+  HIGHLEVEL: 0xEE
+  LOWLEVEL: 0xFF
+  TRIGERLEVEL: 0xF0
+  PosStopF: 2146000000.0
+  VelStopF: 16000.0
+
+JOINT_KP: [
+    200, 200, 200, # left hip yaw, roll, pitch
+    300,  # left knee
+    40, # left ankle
+    200, 200, 200, # right hip yaw, roll, pitch
+    300, # right knee
+    40, # right ankle
+    300, # torso
+    100, 100, 100, # left shoulder pitch, roll, yaw
+    100, # left elbow
+    100, 100, 100, # right shoulder pitch, roll, yaw
+    100, # right elbow
+]
+
+JOINT_KD: [
+    5, 5, 5, # left hip yaw, roll, pitch
+    6, # left knee
+    2, # left ankle
+    5, 5, 5, # right hip yaw, roll, pitch
+    6, # right knee
+    2, # right ankle
+    6, # torso
+    2, 2, 2, # left shoulder pitch, roll, yaw
+    2, # left elbow
+    2, 2, 2, # right shoulder pitch, roll, yaw
+    2, # right elbow
+]
+
+WeakMotorJointIndex:
+  kRightAnkle: 11
+  kLeftAnkle: 10
+  kRightShoulderPitch: 12
+  kRightShoulderRoll: 13
+  kRightShoulderYaw: 14
+  kRightElbow: 15
+  kLeftShoulderPitch: 16
+  kLeftShoulderRoll: 17
+  kLeftShoulderYaw: 18
+  kLeftElbow: 19
+
+NUM_MOTOR: 20
+NUM_JOINTS: 19
+
+DEFAULT_DOF_ANGLES: [0, 0, -0.4, 0.8, -0.4,
+        0, 0, -0.4, 0.8, -0.4,
+        0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+    ]

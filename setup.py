@@ -1,12 +1,12 @@
 from setuptools import find_packages, setup
 
 setup(
-    name='pi_ff',
+    name='maq-sim2real',
     version='0.0.1',
     license="BSD-3-Clause",
     packages=find_packages(),
-    description='pi_FF: Online adaptation for legged robots',
-    url="https://github.com/Nike353/pi_FF",  # Update this with your actual repository URL
+    description='MAQ: sim2real for multi-agent quadrupeds',
+    url="https://github.com/Nike353/maq-sim2real",  # Update this with your actual repository URL
     python_requires=">=3.8",
     install_requires=[
         "hydra-core>=1.2.0",
@@ -30,8 +30,6 @@ setup(
         "easydict",
         "lxml",
         "numpy-stl",
-        "open3d", 
-        "trl", 
         'gymnasium>=1.0.0',
     ]
 )
