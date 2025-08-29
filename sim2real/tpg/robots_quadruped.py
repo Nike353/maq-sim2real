@@ -66,7 +66,7 @@ def euler_angles_to_quat(euler_angles):
     return np.array([qw, qx, qy, qz])
 
 def get_yaw(orientation):
-    print(orientation,"orientation")
+    # print(orientation,"orientation")
     yaw = quat_to_euler_angles(orientation)[-1]
     # if yaw>np.pi/2:
     #     return yaw-2*np.pi
@@ -106,12 +106,28 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
         self._current_time = 0
         self._current_xytheta = self._solution.xythetas[0]
         self._target_time = self._solution.times[0] # Note: We only have a target_time, not a target_xytheta
-        
+        # actual_pos, actual_orientation = self.robot.get_pose()
+        # transformed_xythetas = self.transform_xythetas(solution.xythetas,actual_pos[:2],get_yaw(actual_orientation))
+        # self._solution.xythetas = transformed_xythetas
         self.intermediate_goals = [] # Starts empty
         self.intermediate_times = np.array([self._current_time]) # Need to start with current time otherwise errors
         self.intermediate_index = 0
         self._physics_ready = False
-        
+    
+    def transform_xythetas(self, xythetas: np.ndarray, actual_pos: np.ndarray, actual_yaw: float) -> np.ndarray:
+        transformed_xythetas = np.zeros_like(xythetas)
+        x_p,y_p,yaw_p = xythetas[0]
+        x_a,y_a,yaw_a = actual_pos[0],actual_pos[1],actual_yaw
+        dtheta = yaw_a - yaw_p
+        R = np.array([[np.cos(dtheta), -np.sin(dtheta)],
+                      [np.sin(dtheta), np.cos(dtheta)]])
+        t = np.array([x_a,y_a]) - R @ np.array([x_p,y_p])
+        for i in range(len(xythetas)):
+            pos = R@xythetas[i][:2] + t
+            yaw = wrap_angle(xythetas[i][2] + dtheta)
+            transformed_xythetas[i] = np.array([pos[0],pos[1],yaw])
+        return transformed_xythetas
+    
     def set_new_time_cleared(self, time: float) -> None:
         self._cleared_time = time
     
@@ -153,7 +169,8 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
                 self.intermediate_times = np.linspace(self._current_time, new_target_time, num_interp_steps)
                 self.intermediate_index = 0
                 if self._agent_idx == 0:
-                    print(self._agent_idx,self.intermediate_index,new_target_xytheta,num_interp_steps,self._current_time,self._target_time)
+                    # print(self._agent_idx,self.intermediate_index,new_target_xytheta,num_interp_steps,self._current_time,self._target_time)
+                    pass
                 # print(f"Agent {self._agent_idx} intermediate goals: {self.intermediate_goals}, intermediate times: {self.intermediate_times}")
 
 
@@ -178,6 +195,9 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
             # command = [1.0, 0.0, 0.0]
             self.robot.rl_inference(command)
         else:
+            actual_pos, actual_orientation = self.robot.get_pose()
+            transformed_xythetas = self.transform_xythetas(self._solution.xythetas,actual_pos[:2],get_yaw(actual_orientation))
+            self._solution.xythetas = transformed_xythetas    
             self.robot.rl_inference([0.0, 0.0, 0.0])
         
 

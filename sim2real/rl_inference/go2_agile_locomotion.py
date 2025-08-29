@@ -191,7 +191,7 @@ class LocomotionPolicy(RLPolicy):
         elif not self.use_policy_action:
             q_target = robot_state_data[:, 7:7+self.num_dofs]
         else:
-            print(command)
+            # print(command)
             if scaled_policy_action.shape[1] == self.num_dofs:
                 self.epi_len+=1
                 self.epi_done = 0
