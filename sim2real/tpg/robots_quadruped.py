@@ -3,7 +3,6 @@ import os
 import math
 
 import numpy as np
-import torch
 import sys
 
 sys.path.append("../")
@@ -11,9 +10,9 @@ sys.path.append("./")
 
 
 from sim2real.tpg.tpg_general import TPGInterfaceWithRobot
-from sim2real.rl_inference.go2_agile_locomotion import LocomotionPolicyKeyboard
 from sim2real.tpg.worldCC import XYThetaTimeSolution, getXYThetaAtTimes
-from sim2real.go1_sdk.go1_sdk_interface import Go1SdkInterface
+from sim2real.utils.robot_interface.go1_interface import Go1Interface
+from sim2real.utils.robot_interface.go2_interface import Go2Interface
 
 def interpolate_pose(start_pos,start_yaw,goal_pos,goal_yaw,alpha):
     interp_pos = (1 - alpha) * start_pos + alpha * goal_pos
@@ -89,16 +88,15 @@ def convert_theta(raw_theta: float) -> float:
     # return np.deg2rad(-raw_theta+89.9)
     return raw_theta
 class QuadrupedRobot(TPGInterfaceWithRobot):
-    def __init__(self, agent_idx: int, config, model_path,node,rl_rate=50,policy_action_scale=0.25) -> None:
+    def __init__(self, agent_idx: int, config) -> None:
         self._agent_idx = agent_idx
         self._name = f"quadruped_{agent_idx}"
-        self.robot = LocomotionPolicyKeyboard(config, node, model_path)
+        self.robot = Go2Interface(config)
         self.pos_tol = 0.08
         self.yaw_tol = 0.06
         self.intermediate_goals: List[Tuple[np.ndarray, float]] = None # (K, 2)
         self.intermediate_times: np.ndarray = None # (K,)
         self.intermediate_index: int = 0
-        self._physics_ready: bool = False
         self.reset_height = 0.8
         self.heading_translation = 0.6
     
@@ -113,7 +111,7 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
         self.intermediate_goals = [] # Starts empty
         self.intermediate_times = np.array([self._current_time]) # Need to start with current time otherwise errors
         self.intermediate_index = 0
-        self._physics_ready = False
+        
     
     def transform_xythetas(self, xythetas: np.ndarray, actual_pos: np.ndarray, actual_yaw: float) -> np.ndarray:
         transformed_xythetas = np.zeros_like(xythetas)
@@ -139,7 +137,7 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
         return self._current_xytheta
 
     def physics_step(self) -> None:
-        if self.robot.use_policy_action:
+        if self.robot.physics_ready:
         
             cur_pos, cur_orientation = self.robot.get_pose()
             # print(cur_pos,cur_orientation)
@@ -194,90 +192,28 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
             # print(f"Agent {self._agent_idx} command: {command}")
             # Move the robot
             # command = [1.0, 0.0, 0.0]
-            self.robot.rl_inference(command)
+            self.robot.send_velocity_cmd(command)
         else:
             actual_pos, actual_orientation = self.robot.get_pose()
             transformed_xythetas = self.transform_xythetas(self._solution.xythetas,actual_pos[:2],get_yaw(actual_orientation))
             self._solution.xythetas = transformed_xythetas    
-            self.robot.rl_inference([0.0, 0.0, 0.0])
+            self.robot.send_velocity_cmd([0.0, 0.0, 0.0])
         
 
 
 class Go2Quadruped(QuadrupedRobot):
-    def __init__(self, agent_idx: int, config, model_path,rl_rate=50,policy_action_scale=0.25) -> None:
-        super().__init__(agent_idx,config,model_path,rl_rate,policy_action_scale)
+    def __init__(self, agent_idx: int, config) -> None:
+        super().__init__(agent_idx,config)
         self._name = f"go2_{agent_idx}"
         
     
 class Go1Quadruped(QuadrupedRobot):
-    def __init__(self, agent_idx: int, config, model_path,rl_rate=50,policy_action_scale=0.25) -> None:
-        super().__init__(agent_idx,config,model_path,rl_rate,policy_action_scale)
+    def __init__(self, agent_idx: int, config) -> None:
+        super().__init__(agent_idx,config)
         self._name = f"go1_{agent_idx}"
-        self.robot = Go1SdkInterface(config, node, model_path)
+        self.robot = Go1Interface(config)
     
-    def physics_step(self) -> None:
-        if self.robot.use_policy_action:
-        
-            cur_pos, cur_orientation = self.robot.get_pose()
-            # print(cur_pos,cur_orientation)
-            cur_pos_xy = cur_pos[:2]
-            cur_yaw = get_yaw(cur_orientation)
-            # exit()
-            # print(f"Agent {self._agent_idx} current time: {self._current_time}, current xytheta: {self._current_xytheta}")
-            # print(f"Agent {self._agent_idx} target time: {self._target_time}")
-            
-            # Get the next waypoint
-            new_target_xytheta, new_target_time = self._solution.get_next_waypoint(self._current_time, self._cleared_time)
-            # print(f"cleared_time {self._cleared_time}, new_target_time: {new_target_time}")
-            
-            # Replan if the target waypoint / time has changed
-            if new_target_time != self._target_time: # Replan by recalculating the intermediate goals and times if the target time has changed
-                self._target_time = new_target_time
-                delta_time = new_target_time - self._current_time
-                num_interp_steps = int(np.ceil(delta_time / 0.3)+1) # We should have a waypoint every 0.1 seconds
-                # print(new_target_xytheta[2],convert_theta(new_target_xytheta[2]),cur_yaw)
-                self.intermediate_goals = generate_bezier_path_with_yaw(
-                    start_pos=cur_pos_xy,
-                    start_yaw=cur_yaw,
-                    goal_pos=new_target_xytheta[:2],
-                    goal_yaw=convert_theta(new_target_xytheta[2]), # Note -np.deg2rad because the yaw is in degrees
-                    scale=0.6,
-                    N=num_interp_steps)
-                
-                self.intermediate_times = np.linspace(self._current_time, new_target_time, num_interp_steps)
-                self.intermediate_index = 0
-                if self._agent_idx == 0:
-                    # print(self._agent_idx,self.intermediate_index,new_target_xytheta,num_interp_steps,self._current_time,self._target_time)
-                    pass
-                # print(f"Agent {self._agent_idx} intermediate goals: {self.intermediate_goals}, intermediate times: {self.intermediate_times}")
-
-
-            # Execute to the next intermediate goal
-            if self.intermediate_index < len(self.intermediate_goals):
-                wp_pos, wp_yaw = self.intermediate_goals[self.intermediate_index]
-                command = compute_command_bezier(
-                        cur_pos_xy, cur_yaw, wp_pos, wp_yaw
-                        )
-                
-                
-                if np.linalg.norm(cur_pos_xy - wp_pos) < 0.1 and abs(wrap_angle(wp_yaw-cur_yaw))<0.1:
-                    self.intermediate_index += 1
-                    # print(f"Agent {self._agent_idx} intermediate index: {self.intermediate_index}")
-            else:
-                command = [0.0, 0.0, 0.0]
-            if self.intermediate_index < len(self.intermediate_times):
-                self._current_time = self.intermediate_times[self.intermediate_index]
-            self._current_xytheta = np.array([cur_pos_xy[0], cur_pos_xy[1], cur_yaw]) # Note -np.rad2deg because want yaw in degrees
-            # print(f"Agent {self._agent_idx} command: {command}")
-            # Move the robot
-            # command = [1.0, 0.0, 0.0]
-            self.robot.rl_inference(command)
-        else:
-            actual_pos, actual_orientation = self.robot.get_pose()
-            transformed_xythetas = self.transform_xythetas(self._solution.xythetas,actual_pos[:2],get_yaw(actual_orientation))
-            self._solution.xythetas = transformed_xythetas    
-            self.robot.rl_inference([0.0, 0.0, 0.0])  
-        
+    
    
         
     
@@ -295,32 +231,7 @@ class Go1Quadruped(QuadrupedRobot):
 
 
 
-##############################################################
-# region Linear Interpolation
-def linear_interp(start_pos, start_yaw, goal_pos, goal_yaw, N):
-    path = []
-    for t in np.linspace(0, 1, N):
-        pos = (1 - t) * start_pos + t * goal_pos
-        yaw = (1 - t) * start_yaw + t * goal_yaw
-        path.append((pos, yaw))
-    return path
 
-def compute_command_linear(start_pos, start_yaw, goal_pos, goal_yaw):
-    # Transform goal position into robot's local frame
-    dx = goal_pos[0] - start_pos[0] 
-    dy = goal_pos[1] - start_pos[1]
-    
-    # Rotate the delta vector by -start_yaw to get it in robot's frame
-    dx_local = dx * np.cos(-start_yaw) - dy * np.sin(-start_yaw)
-    dy_local = dx * np.sin(-start_yaw) + dy * np.cos(-start_yaw)
-    
-    dtheta = goal_yaw - start_yaw
-    
-    return [dx_local/(abs(dx_local)*0.1+1e-5), 
-            dy_local/(abs(dy_local)*0.1+1e-5), 
-            dtheta/(abs(dtheta)*0.01+1e-5)]
-# endregion Linear Interpolation
-##############################################################
 
 ##############################################################
 # region Bezier Interpolation

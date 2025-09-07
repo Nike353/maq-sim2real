@@ -1,4 +1,4 @@
-# Install script for directory: /home/guanqihe/nikhil/multi_agent_quad/sim2real/go1_sdk/pybind11
+# Install script for directory: /home/guanqihe/nikhil/multi_agent_quad/sim2real/maq-sim2real/sim2real/go1_sdk/pybind11
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

@@ -6,7 +6,7 @@ import argparse
 import sys
 import numpy as np
 
-sys.path.append("../")
+
 
 from sim2real.tpg.worldCC import XYThetaTimeSolution
 
