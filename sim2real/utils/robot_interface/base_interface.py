@@ -11,10 +11,11 @@ class BaseInterface(ABC):
         self.robot = Robot(config)
 
         self.num_dof = self.robot.NUM_JOINTS
-        self._init_q = np.zeros(1,3 + 4 + self.num_dof)
+        self._init_q = np.zeros(3 + 4 + self.num_dof)
         self.q = self._init_q
-        self.dq = np.zeros(13 + 3 + self.num_dof)
-        
+        self.dq = np.zeros(3 + 3 + self.num_dof)
+        self.physics_ready = False
+        self.get_ready_state = False
         
         self._init_sdk_components()
         self._init_level_components()
@@ -26,22 +27,23 @@ class BaseInterface(ABC):
         pass
 
     def _init_level_components(self):
+        self.level = self.config.get("LEVEL", "HIGHLEVEL")
         pass
 
     @abstractmethod
     def get_state(self):
         pass
 
-    @abstractmethod
+    
     def send_velocity_cmd(self, se2_vel):
         if self.level == "HIGHLEVEL":
             self.send_high_level_cmd(se2_vel)
         elif self.level == "LOWLEVEL":
             self.send_low_level_cmd(se2_vel)
-    @abstractmethod
+    
     def send_low_level_cmd(self, se2_vel):
         pass
-    @abstractmethod
+    
     def send_high_level_cmd(self, se2_vel):
         pass
     def _set_motor_command(self, motor_cmd, motor_id, joint_id, cmd_q, cmd_dq, cmd_tau):
@@ -53,18 +55,17 @@ class BaseInterface(ABC):
         motor_cmd.q = cmd_q[joint_id]
         motor_cmd.dq = cmd_dq[joint_id]
         motor_cmd.tau = cmd_tau[joint_id]
-        motor_cmd.kp = self.robot.MOTOR_KP[motor_id] 
-        motor_cmd.kd = self.robot.MOTOR_KD[motor_id] 
+        motor_cmd.kp = self.robot.JOINT_KP[joint_id] 
+        motor_cmd.kd = self.robot.JOINT_KD[joint_id] 
     
     def _fill_motor_commands(self, motor_cmd, cmd_q, cmd_dq, cmd_tau):
         """Fill motor commands for all motors."""
         joint2motor = self.robot.JOINT2MOTOR
         motor2joint = self.robot.MOTOR2JOINT
-        
-        for i in range(self.robot.NUM_MOTORS):
+        for i in range(self.robot.NUM_MOTOR):
             m_id = joint2motor[i]
             j_id = motor2joint[i]
-            self._set_motor_command(motor_cmd[m_id], m_id, j_id, cmd_q, cmd_dq, cmd_tau) 
+            self._set_motor_command(motor_cmd[i], m_id, j_id, cmd_q, cmd_dq, cmd_tau) 
 
     def start_key_listener(self):
         """Start a key listener using pynput."""

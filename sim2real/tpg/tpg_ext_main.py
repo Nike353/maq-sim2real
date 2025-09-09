@@ -11,7 +11,7 @@ from loop_rate_limiters import RateLimiter
 # from sim2real.sim_env.base_sim import BaseSimulator
 
 import time
-
+sys.path.append(".././")
 from sim2real.tpg.tpg_general import TimedTPGManager, TimeTPGController
 from sim2real.tpg.robots_quadruped import Go2Quadruped, Go1Quadruped
 from sim2real.tpg.worldCC import parse_map_file
@@ -44,7 +44,7 @@ class TPGRunner():
         # self._robot_distribution = ["go2","go2","anymal","spot"]
         # self._robot_distribution = ["spot","go2","anymal","spot","go2","anymal","go2","spot","anymal","go2","spot","spot"]
         # self._robot_distribution = ["spot","spot","go2","spot","go2","spot","anymal","spot",]
-        self._robot_distribution = ["go1"]#,"spot","spot","spot","spot"]
+        self._robot_distribution = ["go2"]#,"spot","spot","spot","spot"]
 
         self._has_spot = np.sum(self._robot_distribution == "go2") > 0
         # if not self._has_spot:
@@ -80,6 +80,7 @@ class TPGRunner():
         ### Create robots
         # self._raw_robots: List[Union[CustomJetbot, CustomSpot]] = []
         self._raw_robots = []
+        print(self._num_agents)
         for i in range(self._num_agents):
             robot_type = self._robot_distribution[i]
             if robot_type == "jetbot":
@@ -111,11 +112,11 @@ class TPGRunner():
     
     
     def run(self):
-        
-        for tpg_controller in self._tpg_controllers:
-            tpg_controller.physics_step()
+        while True:
+            for tpg_controller in self._tpg_controllers:
+                tpg_controller.physics_step()
              
-        self._rate_handler.sleep()
+            self._rate_handler.sleep()
             
         return 
 

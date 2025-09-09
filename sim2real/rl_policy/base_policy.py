@@ -3,7 +3,8 @@ import numpy as np
 import time
 import onnxruntime
 from sim2real.utils.robot import Robot
-
+import sys
+sys.path.append(".././")
 from sim2real.utils.robot_interface.base_interface import BaseInterface
 from loop_rate_limiters import RateLimiter
 
@@ -107,6 +108,7 @@ class RLPolicy:
         scaled_policy_action = policy_action * self.policy_action_scale
         if self.get_ready_state:
             # import ipdb; ipdb.set_trace()
+            print(self.get_ready_state,"get_ready_state")
             q_target = self.get_init_target(robot_state_data)
             if self.init_count > 100:
                 self.init_count = 100

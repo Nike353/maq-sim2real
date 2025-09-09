@@ -5,8 +5,8 @@ import pdb
 import argparse
 import sys
 import numpy as np
-
-
+import sys
+sys.path.append(".././")
 
 from sim2real.tpg.worldCC import XYThetaTimeSolution
 

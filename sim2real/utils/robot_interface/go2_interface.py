@@ -1,6 +1,9 @@
+import sys
+sys.path.append(".././")
 from sim2real.utils.robot_interface.base_interface import BaseInterface
 from sim2real.rl_policy.go2_locomotion import LocomotionPolicy
-from numpy import np
+import numpy as np
+import time
 class Go2Interface(BaseInterface):
     def __init__(self, config):
         super().__init__(config)
@@ -12,13 +15,13 @@ class Go2Interface(BaseInterface):
         from unitree_sdk2py.idl.default import unitree_go_msg_dds__LowCmd_
         from unitree_sdk2py.idl.unitree_go.msg.dds_ import LowCmd_
         from unitree_sdk2py.idl.unitree_go.msg.dds_ import LowState_ 
-        ChannelFactoryInitialize(0,"en0")
+        ChannelFactoryInitialize(0,"enp5s0")
         self.low_cmd = unitree_go_msg_dds__LowCmd_()
 
         self.lowcmd_publisher_ = ChannelPublisher("rt/lowcmd", LowCmd_)
         self.lowcmd_publisher_.Init()
         self.robot_lowstate_subscriber = ChannelSubscriber("rt/lowstate", LowState_)
-        self.robot_lowstate_subscriber.Init(self.LowStateHandler, 1)
+        self.robot_lowstate_subscriber.Init(self.LowStateHandler, 10)
         self.InitUnitreeLowCmd()
         self.low_state = None
         self.crc = CRC()
@@ -34,9 +37,9 @@ class Go2Interface(BaseInterface):
         self.low_cmd.level_flag = 0xFF
         self.low_cmd.gpio = 0
         
-        for i in range(self.robot.NUM_MOTORS):
+        for i in range(self.robot.NUM_MOTOR):
             
-            self.low_cmd.motor_cmd[i].mode = 0x0A
+            self.low_cmd.motor_cmd[i].mode = 0x01
             self.low_cmd.motor_cmd[i].q = self.robot.UNITREE_LEGGED_CONST["PosStopF"]
             self.low_cmd.motor_cmd[i].kp = 0
             self.low_cmd.motor_cmd[i].dq = self.robot.UNITREE_LEGGED_CONST["VelStopF"]
@@ -47,19 +50,29 @@ class Go2Interface(BaseInterface):
 
     def send_low_level_cmd(self, se2_vel):
         """Send command to Unitree robot."""
-
-        rl_qtarget = self.locomotion_policy.rl_inference(self.get_state(), se2_vel)
+        # print("hi")
+        rl_qtarget = self.locomotion_policy.rl_inference(self.get_state(), se2_vel)[0]
         cmd_q = rl_qtarget[0:self.num_dof]
         cmd_dq = 0.0 * np.ones(self.num_dof)
         cmd_tau = 0.0 * np.ones(self.num_dof)
         self._fill_motor_commands(self.low_cmd.motor_cmd, cmd_q, cmd_dq, cmd_tau)
-        
         # Add CRC and send
+        
         self.low_cmd.crc = self.crc.Crc(self.low_cmd)
         self.lowcmd_publisher_.Write(self.low_cmd) 
 
     def LowStateHandler(self, msg):
         self.robot_low_state = msg
+        time.sleep(0.002)
+        if self.physics_ready:
+            self.locomotion_policy.use_policy_action = True
+        else:
+            self.locomotion_policy.use_policy_action = False
+        if self.get_ready_state:
+            self.locomotion_policy.get_ready_state = True
+        else:
+            self.locomotion_policy.get_ready_state = False
+
     
     def _prepare_low_state(self):
         imu_state = self.robot_low_state.imu_state
@@ -76,7 +89,7 @@ class Go2Interface(BaseInterface):
             error_code = unitree_joint_state[self.robot.JOINT2MOTOR[i]].reserve[0]
             if error_code != 0:
                 print(f"joint {i} error code: {error_code}")
-                self.q[7+i] = self.robot.DEFAULT_MOTOR_ANGLES[i]
+                self.q[7+i] = self.robot.DEFAULT_DOF_ANGLES[i]
                 self.dq[6+i] = 0.0
 
     def get_state(self):

@@ -1,4 +1,4 @@
-ROBOT_TYPE: 'go2'
+ROBOT_TYPE: 'go1'
 ROBOT_SCENE: "../humanoidverse/data/robots/go2/scene.xml"
 DOMAIN_ID: 0 # Domain id
 # Interface
@@ -10,9 +10,8 @@ ENABLE_ELASTIC_BAND: False # Virtual spring band, used for lifting h1
 SIMULATE_DT: 0.005  # Need to be larger than the runtime of viewer.sync()
 VIEWER_DT: 0.02  # 50 fps for viewer
 control_rate: 50
-LEVEL: "LOWLEVEL"
 USE_SENSOR: False
-USE_HISTORY: True
+USE_HISTORY: False
 VISUALIZE_PIN: False
 VISUALIZE_FORCES: False
 FREE_BASE: False
@@ -55,7 +54,7 @@ UNITREE_LEGGED_CONST:
   TRIGERLEVEL: 0xF0
   PosStopF: 2146000000.0
   VelStopF: 16000.0
-MODEL_PATH: "/home/guanqihe/nikhil/multi_agent_quad/sim2real/maq-sim2real/logs/go2_locomotion/20250724_193147-v2-locomotion-go2/exported/model_2600.onnx"
+
 JOINT_KP: [
     25.0,
     25.0,
@@ -124,7 +123,7 @@ history_config: {
                   dof_vel: 14,
                   projected_gravity: 14                
 }
-
+level: "HIGHLEVEL"
 obs_scales: {
   actions: 1.0,
   base_ang_vel: 0.25,

@@ -91,7 +91,7 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
     def __init__(self, agent_idx: int, config) -> None:
         self._agent_idx = agent_idx
         self._name = f"quadruped_{agent_idx}"
-        self.robot = Go2Interface(config)
+        self.robot = None
         self.pos_tol = 0.08
         self.yaw_tol = 0.06
         self.intermediate_goals: List[Tuple[np.ndarray, float]] = None # (K, 2)
@@ -191,9 +191,10 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
             self._current_xytheta = np.array([cur_pos_xy[0], cur_pos_xy[1], cur_yaw]) # Note -np.rad2deg because want yaw in degrees
             # print(f"Agent {self._agent_idx} command: {command}")
             # Move the robot
-            # command = [1.0, 0.0, 0.0]
+            
             self.robot.send_velocity_cmd(command)
         else:
+            # print("robot not ready")
             actual_pos, actual_orientation = self.robot.get_pose()
             transformed_xythetas = self.transform_xythetas(self._solution.xythetas,actual_pos[:2],get_yaw(actual_orientation))
             self._solution.xythetas = transformed_xythetas    
@@ -205,6 +206,8 @@ class Go2Quadruped(QuadrupedRobot):
     def __init__(self, agent_idx: int, config) -> None:
         super().__init__(agent_idx,config)
         self._name = f"go2_{agent_idx}"
+        self.robot = Go2Interface(config)
+        print("init go2 robot")
         
     
 class Go1Quadruped(QuadrupedRobot):
@@ -212,6 +215,7 @@ class Go1Quadruped(QuadrupedRobot):
         super().__init__(agent_idx,config)
         self._name = f"go1_{agent_idx}"
         self.robot = Go1Interface(config)
+        print("init go1 robot")
     
     
    
