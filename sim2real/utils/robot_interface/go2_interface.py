@@ -21,7 +21,7 @@ class Go2Interface(BaseInterface):
         self.lowcmd_publisher_ = ChannelPublisher("rt/lowcmd", LowCmd_)
         self.lowcmd_publisher_.Init()
         self.robot_lowstate_subscriber = ChannelSubscriber("rt/lowstate", LowState_)
-        self.robot_lowstate_subscriber.Init(self.LowStateHandler, 10)
+        self.robot_lowstate_subscriber.Init(self.LowStateHandler, 20)
         self.InitUnitreeLowCmd()
         self.low_state = None
         self.crc = CRC()
@@ -63,7 +63,7 @@ class Go2Interface(BaseInterface):
 
     def LowStateHandler(self, msg):
         self.robot_low_state = msg
-        time.sleep(0.002)
+        # time.sleep(0.001)
         if self.physics_ready:
             self.locomotion_policy.use_policy_action = True
         else:

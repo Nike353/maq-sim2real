@@ -8,7 +8,7 @@ import sys
 sys.path.append("../")
 sys.path.append("./")
 
-
+import time
 from sim2real.tpg.tpg_general import TPGInterfaceWithRobot
 from sim2real.tpg.worldCC import XYThetaTimeSolution, getXYThetaAtTimes
 from sim2real.utils.robot_interface.go1_interface import Go1Interface
@@ -19,7 +19,8 @@ def interpolate_pose(start_pos,start_yaw,goal_pos,goal_yaw,alpha):
     interp_yaw = (1 - alpha) * start_yaw + alpha * goal_yaw
     return interp_pos, interp_yaw
 
-
+import zmq
+import threading
 
 def quat_to_euler_angles(q):
     """
@@ -139,7 +140,8 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
     def physics_step(self) -> None:
         if self.robot.physics_ready:
         
-            cur_pos, cur_orientation = self.robot.get_pose()
+            cur_pos = self.global_pose[0]
+            cur_orientation = self.global_pose[1]
             # print(cur_pos,cur_orientation)
             cur_pos_xy = cur_pos[:2]
             cur_yaw = get_yaw(cur_orientation)
@@ -189,16 +191,22 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
             if self.intermediate_index < len(self.intermediate_times):
                 self._current_time = self.intermediate_times[self.intermediate_index]
             self._current_xytheta = np.array([cur_pos_xy[0], cur_pos_xy[1], cur_yaw]) # Note -np.rad2deg because want yaw in degrees
-            # print(f"Agent {self._agent_idx} command: {command}")
+            print(f"Agent {self._agent_idx} command: {command}")
             # Move the robot
-            
             self.robot.send_velocity_cmd(command)
         else:
             # print("robot not ready")
-            actual_pos, actual_orientation = self.robot.get_pose()
-            transformed_xythetas = self.transform_xythetas(self._solution.xythetas,actual_pos[:2],get_yaw(actual_orientation))
-            self._solution.xythetas = transformed_xythetas    
-            self.robot.send_velocity_cmd([0.0, 0.0, 0.0])
+            # pass
+            if self.global_pose:
+                actual_pos = self.global_pose[0]
+                actual_orientation = self.global_pose[1]
+                # print(actual_pos,get_yaw(actual_orientation),self._name)
+                transformed_xythetas = self.transform_xythetas(self._solution.xythetas,actual_pos[:2],get_yaw(actual_orientation))
+                self._solution.xythetas = transformed_xythetas
+                self.robot.send_velocity_cmd([0.0,0.0,0.0])
+            else:
+                print("pose not yet received")               
+            # self.robot.send_velocity_cmd([0.0, 0.0, 0.0])
         
 
 
@@ -207,7 +215,36 @@ class Go2Quadruped(QuadrupedRobot):
         super().__init__(agent_idx,config)
         self._name = f"go2_{agent_idx}"
         self.robot = Go2Interface(config)
-        print("init go2 robot")
+        print("init go2 robot", agent_idx)
+        self._init_zmq_pose_sub("127.0.0.1", 6000)
+        self.global_pose = None
+        # Start background subscriber thread
+        self.sub_thread = threading.Thread(target=self._pose_listener, daemon=True)
+        self.sub_thread.start()
+
+    def _init_zmq_pose_sub(self, zmq_ip, zmq_port):
+        """Initialize ZMQ subscriber for mocap pose."""
+        self.ctx = zmq.Context()
+        self.sub_socket = self.ctx.socket(zmq.SUB)
+        self.sub_socket.connect(f"tcp://{zmq_ip}:{zmq_port}")
+        self.sub_socket.setsockopt(zmq.SUBSCRIBE, b"")  # subscribe to all
+        print(f"Subscribed to mocap ZMQ at tcp://{zmq_ip}:{zmq_port}")
+
+    def _pose_listener(self):
+        """Background thread: listen for ZMQ messages and update pose cache."""
+        while True:
+            try:
+                msg = self.sub_socket.recv_pyobj()
+                if msg and msg.get("name") == "go2_base":
+                    pose_data = msg["pose"]
+                    pos = pose_data["position"]
+                    quat_xyzw = pose_data["orientation"]
+                    quat_wxyz = [quat_xyzw[3], quat_xyzw[0], quat_xyzw[1], quat_xyzw[2]]
+                    self.global_pose = [pos, quat_wxyz]
+                    # print(self.global_pose)
+            except Exception as e:
+                print(f"Pose listener error: {e}")
+                time.sleep(0.01)  # small backoff if something goes wrong
         
     
 class Go1Quadruped(QuadrupedRobot):
@@ -215,7 +252,35 @@ class Go1Quadruped(QuadrupedRobot):
         super().__init__(agent_idx,config)
         self._name = f"go1_{agent_idx}"
         self.robot = Go1Interface(config)
-        print("init go1 robot")
+        print("init go1 robot",agent_idx)
+        self._init_zmq_pose_sub("127.0.0.1", 6000)
+        self.global_pose = None
+        # Start background subscriber thread
+        self.sub_thread = threading.Thread(target=self._pose_listener, daemon=True)
+        self.sub_thread.start()
+
+    def _init_zmq_pose_sub(self, zmq_ip, zmq_port):
+        """Initialize ZMQ subscriber for mocap pose."""
+        self.ctx = zmq.Context()
+        self.sub_socket = self.ctx.socket(zmq.SUB)
+        self.sub_socket.connect(f"tcp://{zmq_ip}:{zmq_port}")
+        self.sub_socket.setsockopt(zmq.SUBSCRIBE, b"")  # subscribe to all
+        print(f"Subscribed to mocap ZMQ at tcp://{zmq_ip}:{zmq_port}")
+
+    def _pose_listener(self):
+        """Background thread: listen for ZMQ messages and update pose cache."""
+        while True:
+            try:
+                msg = self.sub_socket.recv_pyobj()
+                if msg and msg.get("name") == "go1_base":
+                    pose_data = msg["pose"]
+                    pos = pose_data["position"]
+                    quat_xyzw = pose_data["orientation"]
+                    quat_wxyz = [quat_xyzw[3], quat_xyzw[0], quat_xyzw[1], quat_xyzw[2]]
+                    self.global_pose = [pos, quat_wxyz]
+            except Exception as e:
+                print(f"Pose listener error: {e}")
+                time.sleep(0.01)  # small backoff if something goes wrong
     
     
    
@@ -281,7 +346,8 @@ def generate_bezier_path_with_yaw(start_pos, start_yaw, goal_pos, goal_yaw, scal
 
 def compute_command_bezier(
     cur_pos, cur_yaw, goal_pos, goal_yaw,
-    k1=5.0, k2=5.0, k3=10.0,
+    # k1=5.0, k2=5.0, k3=10.0,
+    k1=3.0, k2=3.0, k3=6.0,
     max_v=1.5,
     max_w=1.0,
     pos_tol=0.04,

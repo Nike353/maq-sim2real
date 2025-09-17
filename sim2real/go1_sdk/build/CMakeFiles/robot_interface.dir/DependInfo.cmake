@@ -1,14 +1,23 @@
-
-# Consider dependencies only in project.
-set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)
-
 # The set of languages for which implicit dependencies are needed:
 set(CMAKE_DEPENDS_LANGUAGES
+  "CXX"
+  )
+# The set of files for implicit dependencies of each language:
+set(CMAKE_DEPENDS_CHECK_CXX
+  "/home/nikhil/nikhil/maq/maq-sim2real/sim2real/go1_sdk/python_interface.cpp" "/home/nikhil/nikhil/maq/maq-sim2real/sim2real/go1_sdk/build/CMakeFiles/robot_interface.dir/python_interface.cpp.o"
+  )
+set(CMAKE_CXX_COMPILER_ID "GNU")
+
+# Preprocessor definitions for this target.
+set(CMAKE_TARGET_DEFINITIONS_CXX
+  "robot_interface_EXPORTS"
   )
 
-# The set of dependency files which are needed:
-set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/guanqihe/nikhil/multi_agent_quad/sim2real/maq-sim2real/sim2real/go1_sdk/python_interface.cpp" "CMakeFiles/robot_interface.dir/python_interface.cpp.o" "gcc" "CMakeFiles/robot_interface.dir/python_interface.cpp.o.d"
+# The include file search paths:
+set(CMAKE_CXX_TARGET_INCLUDE_PATH
+  "../include"
+  "/home/nikhil/miniconda3/envs/quadgym/include/python3.10"
+  "../pybind11/include"
   )
 
 # Targets to which this target links.

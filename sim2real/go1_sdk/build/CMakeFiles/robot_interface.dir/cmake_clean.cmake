@@ -1,6 +1,5 @@
 file(REMOVE_RECURSE
   "CMakeFiles/robot_interface.dir/python_interface.cpp.o"
-  "CMakeFiles/robot_interface.dir/python_interface.cpp.o.d"
   "robot_interface.cpython-310-x86_64-linux-gnu.so"
   "robot_interface.pdb"
 )

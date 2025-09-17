@@ -9,13 +9,12 @@ import sys
 from loop_rate_limiters import RateLimiter
 
 # from sim2real.sim_env.base_sim import BaseSimulator
-
+NOT_RUN_GO2 = True
 import time
 sys.path.append(".././")
 from sim2real.tpg.tpg_general import TimedTPGManager, TimeTPGController
 from sim2real.tpg.robots_quadruped import Go2Quadruped, Go1Quadruped
 from sim2real.tpg.worldCC import parse_map_file
-
 
 
 class TPGRunner():
@@ -26,7 +25,7 @@ class TPGRunner():
         self.print_flag  = True
         self.use_sim = True
         ### Create tpg
-        tpg_file = "/home/guanqihe/nikhil/multi_agent_quad/sim2real/maq-sim2real/sim2real/tpg/data/solution_tpg.npz"
+        tpg_file = "/home/nikhil/nikhil/maq/maq-sim2real/sim2real/tpg/data/solution_2_agent.npz"
         self._timed_tpg_manager = TimedTPGManager()
         self._timed_tpg_manager.load_tpg(tpg_file)
         
@@ -44,7 +43,7 @@ class TPGRunner():
         # self._robot_distribution = ["go2","go2","anymal","spot"]
         # self._robot_distribution = ["spot","go2","anymal","spot","go2","anymal","go2","spot","anymal","go2","spot","spot"]
         # self._robot_distribution = ["spot","spot","go2","spot","go2","spot","anymal","spot",]
-        self._robot_distribution = ["go2"]#,"spot","spot","spot","spot"]
+        self._robot_distribution = ["go2","go1"]#,"spot","spot","spot","spot"
 
         self._has_spot = np.sum(self._robot_distribution == "go2") > 0
         # if not self._has_spot:
@@ -56,9 +55,10 @@ class TPGRunner():
         for i in range(self._num_agents):
             self._timed_tpg_manager.list_of_solutions[i].xythetas[:, :2] *= self._cell_size
         self._init_rate_handler()
+       
         self.setup_scene()
 
-
+    
 
     def _init_rate_handler(self):
         ## amogn the config, find the minimum rl_rate
@@ -70,7 +70,7 @@ class TPGRunner():
                 min_rl_rate = config["control_rate"]
         self._rate_handler = RateLimiter(min_rl_rate)
 
-
+    
     def setup_scene(self):
         
         
@@ -80,7 +80,6 @@ class TPGRunner():
         ### Create robots
         # self._raw_robots: List[Union[CustomJetbot, CustomSpot]] = []
         self._raw_robots = []
-        print(self._num_agents)
         for i in range(self._num_agents):
             robot_type = self._robot_distribution[i]
             if robot_type == "jetbot":
@@ -113,7 +112,9 @@ class TPGRunner():
     
     def run(self):
         while True:
-            for tpg_controller in self._tpg_controllers:
+            for i,tpg_controller in enumerate(self._tpg_controllers):
+                if NOT_RUN_GO2 and i==0:
+                    continue
                 tpg_controller.physics_step()
              
             self._rate_handler.sleep()
@@ -123,7 +124,7 @@ class TPGRunner():
     
 
 if __name__ == "__main__":
-    config_files = ["config/go2.yaml"]
+    config_files = ["config/go2.yaml","config/go1.yaml"]
     configs = []
     
     for config_file in config_files:

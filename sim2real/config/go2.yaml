@@ -55,7 +55,7 @@ UNITREE_LEGGED_CONST:
   TRIGERLEVEL: 0xF0
   PosStopF: 2146000000.0
   VelStopF: 16000.0
-MODEL_PATH: "/home/guanqihe/nikhil/multi_agent_quad/sim2real/maq-sim2real/logs/go2_locomotion/20250724_193147-v2-locomotion-go2/exported/model_2600.onnx"
+MODEL_PATH: "/home/nikhil/nikhil/maq/maq-sim2real/sim2real/tpg/data/go2_policy.onnx"
 JOINT_KP: [
     25.0,
     25.0,

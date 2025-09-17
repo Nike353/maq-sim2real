@@ -2,16 +2,19 @@ import sys
 sys.path.append(".././")
 from sim2real.utils.robot_interface.base_interface import BaseInterface
 from sim2real.go1_sdk.lib.python.amd64 import robot_interface as sdk
-
 HIGHLEVEL = 0xee
 LOWLEVEL  = 0xff
 
 class Go1Interface(BaseInterface):
     def __init__(self, config):
         super().__init__(config)
+        self.pose = None
+        self.name = "go1_base"
+
 
     def _init_sdk_components(self):
         self.level = self.config.get("LEVEL", "HIGHLEVEL")
+        
         if self.level == "HIGHLEVEL":
             self.udp = sdk.UDP(HIGHLEVEL, 8080, "192.168.123.161", 8082)
             self.cmd = sdk.HighCmd()
@@ -25,6 +28,7 @@ class Go1Interface(BaseInterface):
             self.state = sdk.LowState()
             self.udp.InitCmdData(self.cmd)
             print("Go1Interface: LOWLEVEL")
+    
     
 
     def _get_robot_state(self):
@@ -51,4 +55,6 @@ class Go1Interface(BaseInterface):
         self.cmd.euler = [0, 0, 0]
         self.cmd.reserve = 0
         self._send_cmd_to_robot()
+    
+    
 
