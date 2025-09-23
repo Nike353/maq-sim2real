@@ -143,6 +143,14 @@ def main():
     args = parser.parse_args()
     
    
+     # Load config (assuming YAML format)
+    import yaml
+    try:
+        with open(args.config, 'r') as f:
+            config = yaml.safe_load(f)
+    except FileNotFoundError:
+        print(f"Config file {args.config} not found, using default config")
+        config = {"LEVEL": "LOWLEVEL"}
     
     # Create Go1Interface with agent name
     go1_interface = Go1Interface(config, agent_name=args.agent_name)
