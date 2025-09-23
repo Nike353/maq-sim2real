@@ -137,7 +137,7 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
     def get_current_xytheta(self) -> np.ndarray:
         return self._current_xytheta
 
-    def physics_step(self) -> None:
+    def physics_step(self) -> List[float]:
         if self.robot.physics_ready:
         
             cur_pos = self.global_pose[0]
@@ -193,7 +193,7 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
             self._current_xytheta = np.array([cur_pos_xy[0], cur_pos_xy[1], cur_yaw]) # Note -np.rad2deg because want yaw in degrees
             print(f"Agent {self._agent_idx} command: {command}")
             # Move the robot
-            self.robot.send_velocity_cmd(command)
+            return command
         else:
             # print("robot not ready")
             # pass
@@ -203,7 +203,7 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
                 # print(actual_pos,get_yaw(actual_orientation),self._name)
                 transformed_xythetas = self.transform_xythetas(self._solution.xythetas,actual_pos[:2],get_yaw(actual_orientation))
                 self._solution.xythetas = transformed_xythetas
-                self.robot.send_velocity_cmd([0.0,0.0,0.0])
+                return [0.0,0.0,0.0]
             else:
                 print("pose not yet received")               
             # self.robot.send_velocity_cmd([0.0, 0.0, 0.0])
@@ -216,35 +216,7 @@ class Go2Quadruped(QuadrupedRobot):
         self._name = f"go2_{agent_idx}"
         self.robot = Go2Interface(config)
         print("init go2 robot", agent_idx)
-        self._init_zmq_pose_sub("127.0.0.1", 6000)
-        self.global_pose = None
-        # Start background subscriber thread
-        self.sub_thread = threading.Thread(target=self._pose_listener, daemon=True)
-        self.sub_thread.start()
-
-    def _init_zmq_pose_sub(self, zmq_ip, zmq_port):
-        """Initialize ZMQ subscriber for mocap pose."""
-        self.ctx = zmq.Context()
-        self.sub_socket = self.ctx.socket(zmq.SUB)
-        self.sub_socket.connect(f"tcp://{zmq_ip}:{zmq_port}")
-        self.sub_socket.setsockopt(zmq.SUBSCRIBE, b"")  # subscribe to all
-        print(f"Subscribed to mocap ZMQ at tcp://{zmq_ip}:{zmq_port}")
-
-    def _pose_listener(self):
-        """Background thread: listen for ZMQ messages and update pose cache."""
-        while True:
-            try:
-                msg = self.sub_socket.recv_pyobj()
-                if msg and msg.get("name") == "go2_base":
-                    pose_data = msg["pose"]
-                    pos = pose_data["position"]
-                    quat_xyzw = pose_data["orientation"]
-                    quat_wxyz = [quat_xyzw[3], quat_xyzw[0], quat_xyzw[1], quat_xyzw[2]]
-                    self.global_pose = [pos, quat_wxyz]
-                    # print(self.global_pose)
-            except Exception as e:
-                print(f"Pose listener error: {e}")
-                time.sleep(0.01)  # small backoff if something goes wrong
+        
         
     
 class Go1Quadruped(QuadrupedRobot):
@@ -253,34 +225,9 @@ class Go1Quadruped(QuadrupedRobot):
         self._name = f"go1_{agent_idx}"
         self.robot = Go1Interface(config)
         print("init go1 robot",agent_idx)
-        self._init_zmq_pose_sub("127.0.0.1", 6000)
-        self.global_pose = None
-        # Start background subscriber thread
-        self.sub_thread = threading.Thread(target=self._pose_listener, daemon=True)
-        self.sub_thread.start()
+        
+    
 
-    def _init_zmq_pose_sub(self, zmq_ip, zmq_port):
-        """Initialize ZMQ subscriber for mocap pose."""
-        self.ctx = zmq.Context()
-        self.sub_socket = self.ctx.socket(zmq.SUB)
-        self.sub_socket.connect(f"tcp://{zmq_ip}:{zmq_port}")
-        self.sub_socket.setsockopt(zmq.SUBSCRIBE, b"")  # subscribe to all
-        print(f"Subscribed to mocap ZMQ at tcp://{zmq_ip}:{zmq_port}")
-
-    def _pose_listener(self):
-        """Background thread: listen for ZMQ messages and update pose cache."""
-        while True:
-            try:
-                msg = self.sub_socket.recv_pyobj()
-                if msg and msg.get("name") == "go1_base":
-                    pose_data = msg["pose"]
-                    pos = pose_data["position"]
-                    quat_xyzw = pose_data["orientation"]
-                    quat_wxyz = [quat_xyzw[3], quat_xyzw[0], quat_xyzw[1], quat_xyzw[2]]
-                    self.global_pose = [pos, quat_wxyz]
-            except Exception as e:
-                print(f"Pose listener error: {e}")
-                time.sleep(0.01)  # small backoff if something goes wrong
     
     
    

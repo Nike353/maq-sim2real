@@ -9,13 +9,13 @@ import sys
 from loop_rate_limiters import RateLimiter
 
 # from sim2real.sim_env.base_sim import BaseSimulator
-NOT_RUN_GO2 = True
 import time
 sys.path.append(".././")
 from sim2real.tpg.tpg_general import TimedTPGManager, TimeTPGController
 from sim2real.tpg.robots_quadruped import Go2Quadruped, Go1Quadruped
 from sim2real.tpg.worldCC import parse_map_file
-
+import zmq
+import threading
 
 class TPGRunner():
     def __init__(self, configs) -> None:
@@ -50,14 +50,44 @@ class TPGRunner():
         #     self._cell_size = 0.25
         # else:
         self._cell_size = 1.0
-            
+        self.msg = None
         ### Update the solution paths to be in respect to the cell size
         for i in range(self._num_agents):
             self._timed_tpg_manager.list_of_solutions[i].xythetas[:, :2] *= self._cell_size
+        self._init_zmq()
+
+        # Start background subscriber thread
+        self.sub_thread = threading.Thread(target=self._pose_listener, daemon=True)
+        self.sub_thread.start()
         self._init_rate_handler()
        
         self.setup_scene()
 
+    def _init_zmq(self, sub_ip="127.0.0.1", sub_port=6000, pub_ip="127.0.0.1", pub_port=6001):
+        """Initialize ZMQ subscriber for mocap pose."""
+        self.ctx = zmq.Context()
+        self.sub_socket = self.ctx.socket(zmq.SUB)
+        self.sub_socket.connect(f"tcp://{sub_ip}:{sub_port}")
+        self.sub_socket.setsockopt(zmq.SUBSCRIBE, b"")  # subscribe to all
+        print(f"Subscribed to mocap ZMQ at tcp://{sub_ip}:{sub_port}")
+        self.pub_socket = self.ctx.socket(zmq.PUB)
+        self.pub_socket.bind(f"tcp://{pub_ip}:{pub_port}")
+        print(f"Published to mocap ZMQ at tcp://{pub_ip}:{pub_port}")
+    
+    def _pose_listener(self):
+        """Background thread: listen for ZMQ messages and update pose cache."""
+        while True:
+            try:
+                self.msg_sub = self.sub_socket.recv_pyobj()
+                # if msg and msg.get("name") == "go1_base":
+                #     pose_data = msg["pose"]
+                #     pos = pose_data["position"]
+                #     quat_xyzw = pose_data["orientation"]
+                #     quat_wxyz = [quat_xyzw[3], quat_xyzw[0], quat_xyzw[1], quat_xyzw[2]]
+                #     self.global_pose = [pos, quat_wxyz]
+            except Exception as e:
+                print(f"Pose listener error: {e}")
+                time.sleep(0.01)  # small backoff if something goes wrong
     
 
     def _init_rate_handler(self):
@@ -112,11 +142,17 @@ class TPGRunner():
     
     def run(self):
         while True:
+            command_dict = {}
             for i,tpg_controller in enumerate(self._tpg_controllers):
-                if NOT_RUN_GO2 and i==0:
-                    continue
-                tpg_controller.physics_step()
-             
+                #get the ith key from the msg
+                key = list(self.msg_sub.keys())[i]
+                #ensure key ends with i
+                assert key.endswith(str(i))
+                tpg_controller.robot.global_pose = self.msg_sub[key]
+                command = tpg_controller.physics_step()
+                command_dict[key] = command
+            self.msg_pub = command_dict
+            self.pub_socket.send_pyobj(self.msg_pub)
             self._rate_handler.sleep()
             
         return 
