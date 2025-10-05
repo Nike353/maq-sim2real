@@ -24,8 +24,9 @@ class TPGRunner():
         self.timer = time.time()
         self.print_flag  = True
         self.use_sim = True
+        self.msg_sub=None
         ### Create tpg
-        tpg_file = "/home/nikhil/nikhil/maq/maq-sim2real/sim2real/tpg/data/solution_2_agent.npz"
+        tpg_file = "/home/rishi/Desktop/CMU/Research/maq-sim2real/sim2real/tpg/data/solution_tpg_new.npz"
         self._timed_tpg_manager = TimedTPGManager()
         self._timed_tpg_manager.load_tpg(tpg_file)
         
@@ -43,7 +44,7 @@ class TPGRunner():
         # self._robot_distribution = ["go2","go2","anymal","spot"]
         # self._robot_distribution = ["spot","go2","anymal","spot","go2","anymal","go2","spot","anymal","go2","spot","spot"]
         # self._robot_distribution = ["spot","spot","go2","spot","go2","spot","anymal","spot",]
-        self._robot_distribution = ["go2","go1"]#,"spot","spot","spot","spot"
+        self._robot_distribution = ["go1","go1"]#,"spot","spot","spot","spot"
 
         self._has_spot = np.sum(self._robot_distribution == "go2") > 0
         # if not self._has_spot:
@@ -60,7 +61,7 @@ class TPGRunner():
         self.sub_thread = threading.Thread(target=self._pose_listener, daemon=True)
         self.sub_thread.start()
         self._init_rate_handler()
-       
+        # exit()
         self.setup_scene()
 
     def _init_zmq(self, sub_ip="127.0.0.1", sub_port=6000, pub_ip="127.0.0.1", pub_port=6001):
@@ -79,6 +80,7 @@ class TPGRunner():
         while True:
             try:
                 self.msg_sub = self.sub_socket.recv_pyobj()
+                # print("hi")
                 # if msg and msg.get("name") == "go1_base":
                 #     pose_data = msg["pose"]
                 #     pos = pose_data["position"]
@@ -145,14 +147,20 @@ class TPGRunner():
             command_dict = {}
             for i,tpg_controller in enumerate(self._tpg_controllers):
                 #get the ith key from the msg
-                key = list(self.msg_sub.keys())[i]
-                #ensure key ends with i
-                assert key.endswith(str(i))
-                tpg_controller.robot.global_pose = self.msg_sub[key]
-                command = tpg_controller.physics_step()
-                command_dict[key] = command
-            self.msg_pub = command_dict
-            self.pub_socket.send_pyobj(self.msg_pub)
+                if self.msg_sub:
+                    key = list(self.msg_sub.keys())[i]
+                    #ensure key ends with i
+                    assert key.endswith(str(i))
+                    pose = [self.msg_sub[key]['position'],self.msg_sub[key]['orientation']]
+                    # print(pose[1],key)
+                    tpg_controller.robot.global_pose = pose
+                    # print(self.msg_sub[key],key)
+                    _,command = tpg_controller.physics_step()
+                    # print(command)
+                    command_dict[key] = command
+                self.msg_pub = command_dict
+                # print(command_dict)
+                self.pub_socket.send_pyobj(self.msg_pub)
             self._rate_handler.sleep()
             
         return 
@@ -160,7 +168,7 @@ class TPGRunner():
     
 
 if __name__ == "__main__":
-    config_files = ["config/go2.yaml","config/go1.yaml"]
+    config_files = ["config/go1_0.yaml","config/go1_1.yaml"]
     configs = []
     
     for config_file in config_files:

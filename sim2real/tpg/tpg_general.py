@@ -6,6 +6,8 @@ import argparse
 import sys
 import numpy as np
 import sys
+
+from numpy.ma import common_fill_value
 sys.path.append(".././")
 
 from sim2real.tpg.worldCC import XYThetaTimeSolution
@@ -147,10 +149,10 @@ class TimeTPGController:
         self.current_status, self.current_target_time = self.tpg_manager.get_next_time_target(self.agent_idx, self.current_time)
         
         self.robot.set_new_time_cleared(self.current_target_time) # Set the new time cleared that the robot could move until
-        self.robot.physics_step() # Update the robot's position and orientation
+        command = self.robot.physics_step() # Update the robot's position and orientation
         self.current_time = self.robot.get_current_time() # Get the current time that the robot is at
         self.current_xytheta = self.robot.get_current_xytheta() # Get the current position and orientation of the robot
-        return self.current_status
+        return self.current_status, command
         # print(f"Agent {self.agent_idx} current time: {self.current_time}, current status: {self.current_status}, current target: {self.current_target}")
         # if self.current_status == "waiting": # If waiting, query TPG for the next target
             # self.current_status, self.current_target = self.tpg_manager.get_next_time_target(self.agent_idx, self.current_time)

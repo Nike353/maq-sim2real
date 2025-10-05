@@ -6,22 +6,44 @@ import zmq
 import threading
 import json
 import numpy as np
+from sim2real.utils.robot import Robot
+from loguru import logger
 
 HIGHLEVEL = 0xee
 LOWLEVEL  = 0xff
 
 class Go1Interface(BaseInterface):
     def __init__(self, config, agent_name=None):
-        super().__init__(config)
+        
+        
+        # # Initialize ZMQ subscriber
+        # if agent_name:
+            
+            
+            
+        self.config = config
+        self.robot = Robot(config)
+
+        self.num_dof = self.robot.NUM_JOINTS
+        self._init_q = np.zeros(3 + 4 + self.num_dof)
+        self.q = self._init_q
+        self.dq = np.zeros(3 + 3 + self.num_dof)
+        self.physics_ready = False
+        self.get_ready_state = False
         self.pose = None
         self.name = "go1_base"
         self.agent_name = agent_name
-        
-        # Initialize ZMQ subscriber
+        self.key_listener_thread = threading.Thread(target=self.start_key_listener, daemon=True)
+        self.key_listener_thread.start()
+        self.logger = logger
         if agent_name:
+            
+            self._init_sdk_components()
+            self._init_level_components()
             self._init_zmq_subscriber()
             self._velocity_command = None  # Store the latest velocity command
             self._command_lock = threading.Lock()
+       
 
     def _init_zmq_subscriber(self):
         """Initialize ZMQ subscriber for velocity commands on port 6001."""
@@ -43,8 +65,8 @@ class Go1Interface(BaseInterface):
                 message = self.zmq_socket.recv_pyobj()
                 
                 # Check if message is for this agent
-                if message and message.get("agent_name") == self.agent_name:
-                    velocity_cmd = message.get("agent_name", None)
+                if message:
+                    velocity_cmd = message.get(self.agent_name, None)
                     if velocity_cmd is not None:
                         with self._command_lock:
                             self._velocity_command = velocity_cmd
@@ -59,7 +81,7 @@ class Go1Interface(BaseInterface):
         self.level = self.config.get("LEVEL", "HIGHLEVEL")
         
         if self.level == "HIGHLEVEL":
-            self.udp = sdk.UDP(HIGHLEVEL, 8080, "192.168.123.161", 8082)
+            self.udp = sdk.UDP(HIGHLEVEL, 8080, self.config.get("high_level_ip"), 8082)
             self.cmd = sdk.HighCmd()
             self.state = sdk.HighState()
             self.udp.InitCmdData(self.cmd)
@@ -115,7 +137,7 @@ class Go1Interface(BaseInterface):
         """Main method to process ZMQ commands and send to robot."""
         if not self.agent_name:
             return
-            
+       
         # Get latest velocity command from ZMQ
         velocity_cmd = self.get_latest_velocity_command()
         

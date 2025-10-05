@@ -68,7 +68,7 @@ def euler_angles_to_quat(euler_angles):
 
 def get_yaw(orientation):
     # print(orientation,"orientation")
-    yaw = quat_to_euler_angles(orientation)[-1]
+    yaw = quat_to_euler_angles(orientation)[0]
     # if yaw>np.pi/2:
     #     return yaw-2*np.pi
     # else:
@@ -200,7 +200,6 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
             if self.global_pose:
                 actual_pos = self.global_pose[0]
                 actual_orientation = self.global_pose[1]
-                # print(actual_pos,get_yaw(actual_orientation),self._name)
                 transformed_xythetas = self.transform_xythetas(self._solution.xythetas,actual_pos[:2],get_yaw(actual_orientation))
                 self._solution.xythetas = transformed_xythetas
                 return [0.0,0.0,0.0]

@@ -32,7 +32,7 @@ MOTOR2JOINT: [
     7,  # RL_thigh_joint
     8,  # RL_calf_joint
 ]
-
+high_level_ip: "192.168.50.100"
 JOINT2MOTOR: [
     3,  # FR_hip_joint
     4,  # FR_thigh_joint
