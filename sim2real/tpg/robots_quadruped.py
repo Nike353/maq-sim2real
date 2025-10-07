@@ -159,12 +159,19 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
                 delta_time = new_target_time - self._current_time
                 num_interp_steps = int(np.ceil(delta_time / 0.3)+1) # We should have a waypoint every 0.1 seconds
                 # print(new_target_xytheta[2],convert_theta(new_target_xytheta[2]),cur_yaw)
-                self.intermediate_goals = generate_bezier_path_with_yaw(
+                # self.intermediate_goals = generate_bezier_path_with_yaw(
+                #     start_pos=cur_pos_xy,
+                #     start_yaw=cur_yaw,
+                #     goal_pos=new_target_xytheta[:2],
+                #     goal_yaw=convert_theta(new_target_xytheta[2]), # Note -np.deg2rad because the yaw is in degrees
+                #     scale=0.6,
+                #     N=num_interp_steps)
+                
+                self.intermediate_goals = generate_linear_path_with_yaw(
                     start_pos=cur_pos_xy,
                     start_yaw=cur_yaw,
                     goal_pos=new_target_xytheta[:2],
                     goal_yaw=convert_theta(new_target_xytheta[2]), # Note -np.deg2rad because the yaw is in degrees
-                    scale=0.6,
                     N=num_interp_steps)
                 
                 self.intermediate_times = np.linspace(self._current_time, new_target_time, num_interp_steps)
@@ -289,6 +296,39 @@ def generate_bezier_path_with_yaw(start_pos, start_yaw, goal_pos, goal_yaw, scal
         yaw = yaws[i]
         path.append((pos, yaw))
     return path 
+
+def generate_linear_path_with_yaw(start_pos, start_yaw, goal_pos, goal_yaw, N=30) -> List[Tuple[np.ndarray, float]]:
+    """
+    Generate a linear path with linearly interpolated yaw between start and goal positions.
+    
+    Args:
+        start_pos: Starting position [x, y]
+        start_yaw: Starting yaw angle in radians
+        goal_pos: Goal position [x, y]
+        goal_yaw: Goal yaw angle in radians
+        N: Number of waypoints to generate
+        
+    Returns:
+        List of tuples (position, yaw) representing the linear path
+    """
+    start_pos = np.array(start_pos)
+    goal_pos = np.array(goal_pos)
+    
+    # If start and goal are very close, just interpolate yaw
+    if np.allclose(start_pos, goal_pos, atol=1e-1):
+        yaws = np.linspace(start_yaw, goal_yaw, N)
+        return [(start_pos.copy(), yaw) for yaw in yaws]
+    
+    path = []
+    for i in range(N):
+        alpha = i / (N - 1)  # Interpolation parameter from 0 to 1
+        # Linear interpolation for position
+        pos = (1 - alpha) * start_pos + alpha * goal_pos
+        # Linear interpolation for yaw
+        yaw = (1 - alpha) * start_yaw + alpha * goal_yaw
+        path.append((pos, yaw))
+    
+    return path
 
 def compute_command_bezier(
     cur_pos, cur_yaw, goal_pos, goal_yaw,
