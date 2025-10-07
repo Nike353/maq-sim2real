@@ -26,7 +26,7 @@ class TPGRunner():
         self.use_sim = True
         self.msg_sub=None
         ### Create tpg
-        tpg_file = "/home/rishi/Desktop/CMU/Research/maq-sim2real/sim2real/tpg/data/solution_tpg_new.npz"
+        tpg_file = "/home/rishi/Desktop/CMU/Research/maq-sim2real/sim2real/tpg/data/real_world_case1@3agents.scen_n2_s1_tpg.npz"
         self._timed_tpg_manager = TimedTPGManager()
         self._timed_tpg_manager.load_tpg(tpg_file)
         
@@ -45,7 +45,7 @@ class TPGRunner():
         # self._robot_distribution = ["spot","go2","anymal","spot","go2","anymal","go2","spot","anymal","go2","spot","spot"]
         # self._robot_distribution = ["spot","spot","go2","spot","go2","spot","anymal","spot",]
         self._robot_distribution = ["go1","go1"]#,"spot","spot","spot","spot"
-
+        # self._num_agents=1
         self._has_spot = np.sum(self._robot_distribution == "go2") > 0
         # if not self._has_spot:
         #     self._cell_size = 0.25
