@@ -198,7 +198,8 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
             if self.intermediate_index < len(self.intermediate_times):
                 self._current_time = self.intermediate_times[self.intermediate_index]
             self._current_xytheta = np.array([cur_pos_xy[0], cur_pos_xy[1], cur_yaw]) # Note -np.rad2deg because want yaw in degrees
-            print(f"Agent {self._agent_idx} command: {command}")
+            # print(f"Agent {self._agent_idx} command: {command}")
+            # print(cur_yaw,"cur_yaw",wp_yaw,"wp_yaw")
             # Move the robot
             return command
         else:
@@ -207,7 +208,10 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
             if self.global_pose:
                 actual_pos = self.global_pose[0]
                 actual_orientation = self.global_pose[1]
+                # print(get_yaw(actual_orientation),self._agent_idx)
                 transformed_xythetas = self.transform_xythetas(self._solution.xythetas,actual_pos[:2],get_yaw(actual_orientation))
+                # print(transformed_xythetas,self._agent_idx)
+                # exit()
                 self._solution.xythetas = transformed_xythetas
                 return [0.0,0.0,0.0]
             else:
@@ -319,6 +323,14 @@ def generate_linear_path_with_yaw(start_pos, start_yaw, goal_pos, goal_yaw, N=30
         yaws = np.linspace(start_yaw, goal_yaw, N)
         return [(start_pos.copy(), yaw) for yaw in yaws]
     
+    wrapped_goal_yaw = (goal_yaw - 2*np.pi + np.pi) % 2*np.pi - np.pi
+    if abs(wrapped_goal_yaw - start_yaw) < abs(goal_yaw - start_yaw):
+        goal_yaw = wrapped_goal_yaw
+    wrapped_goal_yaw = (goal_yaw + 2*np.pi + np.pi) % 2*np.pi - np.pi
+    if abs(wrapped_goal_yaw - start_yaw) < abs(goal_yaw - start_yaw):
+        goal_yaw = wrapped_goal_yaw
+    print(f"Initial goal: {goal_yaw}, wrapped: {wrapped_goal_yaw}")
+        
     path = []
     for i in range(N):
         alpha = i / (N - 1)  # Interpolation parameter from 0 to 1
@@ -333,8 +345,8 @@ def generate_linear_path_with_yaw(start_pos, start_yaw, goal_pos, goal_yaw, N=30
 def compute_command_bezier(
     cur_pos, cur_yaw, goal_pos, goal_yaw,
     # k1=5.0, k2=5.0, k3=10.0,
-    k1=3.0, k2=3.0, k3=6.0,
-    max_v=1.5,
+    k1=2.0, k2=2.0, k3=5.0,
+    max_v=1.0,
     max_w=1.0,
     pos_tol=0.04,
     yaw_tol=0.05,
