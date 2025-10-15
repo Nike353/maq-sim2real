@@ -13,6 +13,7 @@ from sim2real.tpg.tpg_general import TPGInterfaceWithRobot
 from sim2real.tpg.worldCC import XYThetaTimeSolution, getXYThetaAtTimes
 from sim2real.utils.robot_interface.go1_interface import Go1Interface
 from sim2real.utils.robot_interface.go2_interface import Go2Interface
+# from sim2real.tpg.tpg_ext_main import transform_pose_to_new_frame,wrap_to_pi
 
 def interpolate_pose(start_pos,start_yaw,goal_pos,goal_yaw,alpha):
     interp_pos = (1 - alpha) * start_pos + alpha * goal_pos
@@ -21,6 +22,34 @@ def interpolate_pose(start_pos,start_yaw,goal_pos,goal_yaw,alpha):
 
 import zmq
 import threading
+
+def wrap_to_pi(angle):
+    """Wrap angle from [0, 2π) to [-π, π] with π included."""
+    angle = (angle + np.pi) % (2 * np.pi) - np.pi
+    if np.isclose(angle, -np.pi):  # ensure π included instead of -π
+        angle = np.pi
+    return angle
+def transform_pose_to_new_frame(x, y, yaw):
+    """
+    Transform pose (x, y, yaw) from original frame to new frame.
+    New frame: rotated 90° CCW and translated by (4, 4) in original frame.
+    """
+    # 1. Define transform from new frame to old frame
+    theta = np.pi / 2  # 90 degrees in radians
+    R = np.array([[np.cos(theta), -np.sin(theta)],
+                  [np.sin(theta),  np.cos(theta)]])
+    t = np.array([4, 4])
+
+    # 2. Compute robot pose in old frame
+    p_old = np.array([x, y])
+
+    # 3. Convert to new frame coordinates
+    p_new = R.T @ (p_old - t)  # inverse of (R, t)
+
+    # 4. Adjust yaw (subtract frame rotation)
+    yaw_new = wrap_to_pi(yaw - theta)
+
+    return p_new[0], p_new[1], yaw_new
 
 def quat_to_euler_angles(q):
     """
@@ -80,7 +109,7 @@ def get_yaw(orientation):
 
 def wrap_angle(angle):
     # return (angle + 1.5 * np.pi) % (2 * np.pi) - 1.5 * np.pi
-    return angle
+    return (angle+1*np.pi)%(2*np.pi) - np.pi
 
 def convert_theta(raw_theta: float) -> float:
     """Required to map the solution xytheta (in degrees and with a different x-axis) 
@@ -103,6 +132,7 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
     
     def set_solution_path(self, solution: XYThetaTimeSolution) -> None:
         self._solution = solution
+        # print(
         self._current_time = 0
         self._current_xytheta = self._solution.xythetas[0]
         self._target_time = self._solution.times[0] # Note: We only have a target_time, not a target_xytheta
@@ -173,7 +203,8 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
                     goal_pos=new_target_xytheta[:2],
                     goal_yaw=convert_theta(new_target_xytheta[2]), # Note -np.deg2rad because the yaw is in degrees
                     N=num_interp_steps)
-                
+                if self._agent_idx==2:
+                    print(self.intermediate_goals,self._agent_idx,cur_yaw,convert_theta(new_target_xytheta[2]))
                 self.intermediate_times = np.linspace(self._current_time, new_target_time, num_interp_steps)
                 self.intermediate_index = 0
                 if self._agent_idx == 0:
@@ -190,7 +221,7 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
                         )
                 
                 
-                if np.linalg.norm(cur_pos_xy - wp_pos) < 0.1 and abs(wrap_angle(wp_yaw-cur_yaw))<0.1:
+                if np.linalg.norm(cur_pos_xy - wp_pos) < 0.05 and abs(wrap_angle(wp_yaw-cur_yaw))<0.1:
                     self.intermediate_index += 1
                     # print(f"Agent {self._agent_idx} intermediate index: {self.intermediate_index}")
             else:
@@ -319,17 +350,24 @@ def generate_linear_path_with_yaw(start_pos, start_yaw, goal_pos, goal_yaw, N=30
     goal_pos = np.array(goal_pos)
     
     # If start and goal are very close, just interpolate yaw
-    if np.allclose(start_pos, goal_pos, atol=1e-1):
-        yaws = np.linspace(start_yaw, goal_yaw, N)
-        return [(start_pos.copy(), yaw) for yaw in yaws]
+    # if np.allclose(start_pos, goal_pos, atol=1e-1):
+    #     yaws = np.linspace(start_yaw, goal_yaw, N)
+    #     return [(start_pos.copy(), yaw) for yaw in yaws]
     
-    wrapped_goal_yaw = (goal_yaw - 2*np.pi + np.pi) % 2*np.pi - np.pi
+    # wrapped_goal_yaw = (goal_yaw - 2*np.pi + np.pi) % 2*np.pi - np.pi
+    # if abs(wrapped_goal_yaw - start_yaw) < abs(goal_yaw - start_yaw):
+    #     goal_yaw = wrapped_goal_yaw
+    # wrapped_goal_yaw = (goal_yaw + 2*np.pi + np.pi) % 2*np.pi - np.pi
+    # if abs(wrapped_goal_yaw - start_yaw) < abs(goal_yaw - start_yaw):
+    #     goal_yaw = wrapped_goal_yaw
+    wrapped_goal_yaw = goal_yaw % 2*np.pi # Gets positive value
     if abs(wrapped_goal_yaw - start_yaw) < abs(goal_yaw - start_yaw):
+        # print(f"Initial goal: {goal_yaw}, wrapped: {wrapped_goal_yaw}")
         goal_yaw = wrapped_goal_yaw
-    wrapped_goal_yaw = (goal_yaw + 2*np.pi + np.pi) % 2*np.pi - np.pi
+    wrapped_goal_yaw = goal_yaw % 2*np.pi - 2*np.pi # Gets negative value
     if abs(wrapped_goal_yaw - start_yaw) < abs(goal_yaw - start_yaw):
+        # print(f"Initial goal: {goal_yaw}, wrapped: {wrapped_goal_yaw}")
         goal_yaw = wrapped_goal_yaw
-    print(f"Initial goal: {goal_yaw}, wrapped: {wrapped_goal_yaw}")
         
     path = []
     for i in range(N):
@@ -338,7 +376,7 @@ def generate_linear_path_with_yaw(start_pos, start_yaw, goal_pos, goal_yaw, N=30
         pos = (1 - alpha) * start_pos + alpha * goal_pos
         # Linear interpolation for yaw
         yaw = (1 - alpha) * start_yaw + alpha * goal_yaw
-        path.append((pos, yaw))
+        path.append((pos, wrap_angle(yaw)))
     
     return path
 
@@ -346,8 +384,8 @@ def compute_command_bezier(
     cur_pos, cur_yaw, goal_pos, goal_yaw,
     # k1=5.0, k2=5.0, k3=10.0,
     k1=2.0, k2=2.0, k3=5.0,
-    max_v=1.0,
-    max_w=1.0,
+    max_v=0.7,
+    max_w=0.7,
     pos_tol=0.04,
     yaw_tol=0.05,
 ):
