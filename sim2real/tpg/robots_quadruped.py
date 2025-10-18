@@ -231,6 +231,8 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
             self._current_xytheta = np.array([cur_pos_xy[0], cur_pos_xy[1], cur_yaw]) # Note -np.rad2deg because want yaw in degrees
             # print(f"Agent {self._agent_idx} command: {command}")
             # print(cur_yaw,"cur_yaw",wp_yaw,"wp_yaw")
+            # print(f"Agent {self._agent_idx} command: {command}")
+            # print(cur_yaw,"cur_yaw",wp_yaw,"wp_yaw")
             # Move the robot
             return command
         else:
@@ -239,7 +241,7 @@ class QuadrupedRobot(TPGInterfaceWithRobot):
             if self.global_pose:
                 actual_pos = self.global_pose[0]
                 actual_orientation = self.global_pose[1]
-                # print(get_yaw(actual_orientation))
+                # print(get_yaw(actual_orientation),self._agent_idx)
                 transformed_xythetas = self.transform_xythetas(self._solution.xythetas,actual_pos[:2],get_yaw(actual_orientation))
                 # print(transformed_xythetas,self._agent_idx)
                 # exit()
